@@ -1,0 +1,61 @@
+{
+  "name": "@xtwis/ohnet",
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.24.0",
+  "description": "",
+  "author": "Twisuki",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xtwis/ohnet.git"
+  },
+  "bugs": "https://github.com/xtwis/ohnet/issues",
+  "keywords": [],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm lint && pnpm check && pnpm check:test && pnpm test:run && tsup",
+    "check": "tsc --noEmit",
+    "check:test": "tsc -p tsconfig.test.json",
+    "fix": "eslint . --fix",
+    "lint": "eslint",
+    "prepack": "pnpm build",
+    "prepare": "husky",
+    "test": "vitest",
+    "test:run": "pnpm test run",
+    "test:ui": "pnpm test --ui"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.1.0",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@types/node": "^26.1.1",
+    "@vitest/ui": "^4.1.9",
+    "cross-env": "^7.0.3",
+    "dayjs": "^1.11.21",
+    "eslint": "^10.6.0",
+    "eslint-plugin-format": "^2.0.1",
+    "husky": "^9.1.7",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.0",
+    "vitest": "^4.1.9"
+  }
+}
