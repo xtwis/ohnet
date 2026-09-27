@@ -2,19 +2,29 @@
   "name": "@xtwis/ohnet",
   "version": "0.1.0",
   "packageManager": "pnpm@11.24.0",
-  "description": "",
+  "description": "Fluent, immutable HTTP client with middleware pipeline for building business-oriented request frameworks.",
   "author": "Twisuki",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "readme": "README.md",
+  "homepage": "https://github.com/xtwis/ohnet#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xtwis/ohnet.git"
   },
   "bugs": "https://github.com/xtwis/ohnet/issues",
-  "keywords": [],
+  "keywords": [
+    "http",
+    "fetch",
+    "client",
+    "middleware",
+    "typescript",
+    "request",
+    "pipeline",
+    "events"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
