@@ -30,6 +30,10 @@ export { OHNET_EVENT } from "@/pipeline/types"
 export type { OhNetEventHandler, OhNetEventName } from "@/pipeline/types"
 export { OhNetMiddleware } from "@/pipeline/types"
 export type {
+  OhNetMiddlewareEnterControls,
+  OhNetMiddlewareLeaveControls,
+} from "@/pipeline/types"
+export type {
   OhNetContext,
   OhNetMethod,
   OhNetParams,

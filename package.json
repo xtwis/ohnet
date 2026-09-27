@@ -32,8 +32,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm lint && pnpm check && pnpm check:test && pnpm test:run && tsup",
-    "check": "tsc --noEmit",
+    "build": "pnpm lint && pnpm check && pnpm test:run && tsup",
+    "check": "pnpm check:src && pnpm check:test",
+    "check:src": "tsc --noEmit",
     "check:test": "tsc -p tsconfig.test.json",
     "fix": "eslint . --fix",
     "lint": "eslint",
