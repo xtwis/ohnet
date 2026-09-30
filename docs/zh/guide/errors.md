@@ -57,13 +57,13 @@ catch (error) {
 2. **以 `code` 分支, 不依赖 `message`.** message 会变, code 是稳定的.
 3. **永远有 `default`.** 一个新的 `code` 意味着一种新的失败模式: 大声抛出来, 不要吞掉.
 
-具体的重试策略见 [示例](./examples.md).
+具体的重试策略见 [中间件食谱](../example/middleware.md).
 
 ## 主动抛错
 
 错误来自哪里改变了契约.
 
-**从你的中间件:** 抛一个 `OhNetError` 子类, 带一个你为业务域定义的 code (例如 `OHNET_AUTH`). 任何非 `OhNetError` 的抛出都会被调度器捕获并包装为 `OhNetUnknownError`. 原值会保留在 `error.error` 供调试, 但结构化的 `code` 丢失. 抛结构化的错误, 让 catch 处保持可分支.
+**从你的中间件:** 抛一个 `OhNetError` 子类, 带一个你为业务域定义的 code (例如 `OHNET_AUTH`). 任何非 `OhNetError` 的抛出都会被调度器捕获, 并重新包装为 `type` 和 `code` 均为 `OHNET_UNKNOWN` 的 `OhNetError`. 原值会保留在 `error.error` 供调试, 但结构化的 `code` 丢失. 抛结构化的错误, 让 catch 处保持可分支.
 
 **从自定义适配器:** 抛 `OhNetAdapterError`, 使用 `OHNET_ADAPTER_ERROR_CODE` 常量之一 (`NETWORK`, `TIMEOUT`, `ABORT`, `NO_FETCH`). 这让 catch 处能区分传输失败和框架失败, 而不用打开传输底层对象. 完整适配器模板见 [Adapter](./adapter.md).
 
@@ -72,4 +72,4 @@ catch (error) {
 ## 下一步
 
 - [HTTP Requests](./http.md): `responseType`, `params`, 以及每请求选项.
-- [构建业务 API 客户端](./business-client.md): 实用的错误映射模式.
+- [构建业务 API 客户端](../example/business-client.md): 实用的错误映射模式.

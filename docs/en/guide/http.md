@@ -112,5 +112,5 @@ await client.append("/slow").request({
 
 ## Next
 
-- [Building a Business API Client](../example/building-business-client.md): composing everything into a real SDK.
+- [Building a Business API Client](../example/business-client.md): composing everything into a real SDK.
 - [API Reference](../reference/api.md): full signatures and error codes.

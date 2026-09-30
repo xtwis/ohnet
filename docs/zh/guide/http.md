@@ -112,5 +112,5 @@ await client.append("/slow").request({
 
 ## 下一步
 
-- [构建业务 API 客户端](../example/building-business-client.md): 把所有部件组合成真正的 SDK.
+- [构建业务 API 客户端](../example/business-client.md): 把所有部件组合成真正的 SDK.
 - [API 参考](../reference/api.md): 完整签名与错误代码.

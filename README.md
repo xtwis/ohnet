@@ -299,13 +299,15 @@ class OhNetError extends Error {
 }
 ```
 
-Three top-level types are produced by the library:
+Three top-level `type` values are produced by the library:
 
-| `type`           | Class                | When                                                                                        |
-| ---------------- | -------------------- | ------------------------------------------------------------------------------------------- |
-| `OHNET_INTERNAL` | `OhNetInternalError` | Framework-level outcome (`SKIPPED` / `NO_RESPONSE` / `RETRY_EXHAUSTED` / `MIDDLEWARE_NAME`) |
-| `OHNET_ADAPTER`  | `OhNetAdapterError`  | Transport-level failure (`NETWORK` / `TIMEOUT` / `ABORT` / `NO_FETCH`)                      |
-| `OHNET_UNKNOWN`  | `OhNetUnknownError`  | Non-`OhNetError` value caught from a middleware                                             |
+| `type`           | Produced by                                       | Detect                                                                                                |
+| ---------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `OHNET_INTERNAL` | Framework internals                               | `error.type === OHNET_ERROR_TYPE` (`SKIPPED` / `NO_RESPONSE` / `RETRY_EXHAUSTED` / `MIDDLEWARE_NAME`) |
+| `OHNET_ADAPTER`  | Adapters, including the built-in `fetchAdapter`   | `error instanceof OhNetAdapterError` (`NETWORK` / `TIMEOUT` / `ABORT` / `NO_FETCH`)                   |
+| `OHNET_UNKNOWN`  | The dispatcher, wrapping a non-`OhNetError` throw | `error.type === OHNET_UNKNOWN_ERROR_TYPE`                                                             |
+
+Only `OhNetError` (the base class) and `OhNetAdapterError` are exported as classes. Internal and unknown failures are internal to the library, so they are identified by their `type` and `code`; the package exports those constants (`OHNET_ERROR_TYPE` / `OHNET_ERROR_CODE`, `OHNET_UNKNOWN_ERROR_TYPE` / `OHNET_UNKNOWN_ERROR_CODE`, `OHNET_ADAPTER_ERROR_TYPE` / `OHNET_ADAPTER_ERROR_CODE`) instead of the classes.
 
 Branch on `code`, not `message`:
 
@@ -494,7 +496,8 @@ catch (error) {
 - `OhNetMiddleware`: base class for custom middlewares
 - `OhNetHeader`: multi-value header collection with RFC 7230 validation
 - `OhNetController`: self-contained abort signal
-- `OhNetError` / `OhNetInternalError` / `OhNetAdapterError` / `OhNetUnknownError`: error hierarchy
+- `OhNetError`: base class for every error ohnet produces or wraps
+- `OhNetAdapterError`: transport failure thrown by adapters (a subclass of `OhNetError`)
 
 ### Types
 

@@ -57,13 +57,13 @@ Three rules that hold across the codebase:
 2. **Branch on `code`, not `message`.** Messages change; codes are stable.
 3. **Always have a `default`.** A new `code` means a new failure mode: surface it loudly, don't swallow it.
 
-For concrete retry strategies, see [Examples](./examples.md).
+For concrete retry strategies, see [Middleware Recipes](../example/middleware.md).
 
 ## Throwing Errors
 
 Where the error originates changes the contract.
 
-**From your middleware:** throw an `OhNetError` subclass with a code you define for your domain (e.g. `OHNET_AUTH`). Anything thrown that isn't an `OhNetError` is caught by the dispatcher and wrapped in `OhNetUnknownError`. The original is preserved on `error.error` for debugging, but the structured `code` is lost. Throw structured errors to keep catch sites branchable.
+**From your middleware:** throw an `OhNetError` subclass with a code you define for your domain (e.g. `OHNET_AUTH`). Anything thrown that isn't an `OhNetError` is caught by the dispatcher and re-wrapped as an `OhNetError` whose `type` and `code` are both `OHNET_UNKNOWN`. The original is preserved on `error.error` for debugging, but the structured `code` is lost. Throw structured errors to keep catch sites branchable.
 
 **From a custom adapter:** throw `OhNetAdapterError` with one of the `OHNET_ADAPTER_ERROR_CODE` constants (`NETWORK`, `TIMEOUT`, `ABORT`, `NO_FETCH`). This lets catch sites distinguish transport failures from framework failures without inspecting the underlying transport object. See [Adapter](./adapter.md) for a complete adapter template.
 
@@ -72,4 +72,4 @@ In short: middleware errors carry _your_ semantics; adapter errors carry _transp
 ## Next
 
 - [HTTP Requests](./http.md): `responseType`, `params`, and per-request options.
-- [Building a Business API Client](./business-client.md): practical error-mapping patterns.
+- [Building a Business API Client](../example/business-client.md): practical error-mapping patterns.
