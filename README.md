@@ -341,18 +341,19 @@ The real value of ohnet is using it to build a domain-specific request framework
 import type { OhNetContext, OhNetMiddlewareLeaveControls } from "@xtwis/ohnet"
 import { OhNetBuilder, OhNetMiddleware } from "@xtwis/ohnet"
 
+// A response envelope is { code, data, message }
+function isEnvelop(value: unknown): value is { code: number, data: unknown, message: string } {
+  return typeof value === "object" && value !== null
+    && "code" in value && "data" in value && "message" in value
+}
+
 // 1. Unpack { code, data, message } -> return data on success
 class UnpackMiddleware extends OhNetMiddleware {
   readonly name = "unpack"
   readonly leave = async (_a, ctx: OhNetContext): Promise<void> => {
     const body = ctx.response?.data
-    if (
-      body && typeof body === "object"
-      && "code" in body && "data" in body
-      && (body as { code: number }).code === 0
-    ) {
-      ctx.response!.data = (body as { data: unknown }).data
-    }
+    if (ctx.response && isEnvelop(body) && body.code === 0)
+      ctx.response.data = body.data
   }
 }
 
@@ -364,8 +365,8 @@ class BusinessErrorMiddleware extends OhNetMiddleware {
     ctx: OhNetContext,
     controls: OhNetMiddlewareLeaveControls,
   ): Promise<void> => {
-    const body = ctx.response?.data as { code: number, message: string } | undefined
-    if (!body || body.code === 0)
+    const body = ctx.response?.data
+    if (!isEnvelop(body) || body.code === 0)
       return
     controls.terminate()
     throw new Error(`[${body.code}] ${body.message}`)
@@ -395,8 +396,8 @@ class AuthMiddleware extends OhNetMiddleware {
     ctx: OhNetContext,
     controls: OhNetMiddlewareLeaveControls,
   ): Promise<void> => {
-    const body = ctx.response?.data as { code: number } | undefined
-    if (body?.code !== 401)
+    const body = ctx.response?.data
+    if (!isEnvelop(body) || body.code !== 401)
       return
     try {
       this.onToken(await this.refresh())
@@ -468,7 +469,7 @@ const client = new OhNetBuilder({
 ### Per-request timeout
 
 ```ts
-await client.get("/slow-endpoint", undefined, undefined, { timeout: 5_000 })
+await client.append("/slow-endpoint").request({ method: "GET", timeout: 5_000 })
 ```
 
 ### Cancellation via signal
@@ -478,7 +479,7 @@ const controller = new AbortController()
 controller.abort() // before the request even runs
 
 try {
-  await client.get("/items", undefined, undefined, { signal: controller.signal })
+  await client.append("/items").request({ method: "GET", signal: controller.signal })
 }
 catch (error) {
   // error.code === OHNET_ADAPTER_ERROR_CODE.ABORT

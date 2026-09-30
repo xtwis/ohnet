@@ -22,7 +22,7 @@ A minimal `fetch`-based adapter ships with the library and is used when no `adap
 - Bridges the user `signal` through to `AbortController`
 - Enforces `request.timeout` via the same signal
 - JSON-encodes plain object bodies
-- Honors `request.autoRetries` (for `fetch`, this maps to a single retry on network failure)
+- Honors `request.autoRetries`: `true` allows up to 3 retries for idempotent methods (`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`) on network failure or timeout, while a positive number sets the retry cap (clamped to 3). Retries are spaced 300ms apart.
 
 `fetchAdapter` is a sensible default for any runtime with a standard `fetch` global: modern browsers, Node 18+, Deno, Bun, Cloudflare Workers, Vercel Edge, and similar. If your platform provides `fetch`, you do not need to do anything.
 

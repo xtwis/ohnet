@@ -95,8 +95,7 @@ client.options<T>(path, data)
 需要完整控制时, 用 `request<T>(config)`:
 
 ```ts
-await client.request<MyResponse>({
-  url: "/items",
+await client.append("/items").request<MyResponse>({
   method: "POST",
   headers: { "content-type": "application/json" },
   data: { foo: "bar" },

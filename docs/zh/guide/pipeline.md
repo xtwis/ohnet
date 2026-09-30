@@ -54,10 +54,6 @@ flowchart LR
 | `controls.terminate()` | enter 或 leave | 后续 `enter` (或 `leave`) 钩子不再执行                                                          |
 | `controls.retry()`     | enter 或 leave | 重新跑整条管线, 上限为 `request.middlewareRetries`                                              |
 
-`skip` 和 `terminate` 都会短路, 但抑制的范围不同: `skip` 仅停止 enter 链 (leave 仍会跑), `terminate` 同时停止 enter 与 leave.
-
-`retry()` 安排一次全新的管线运行. 每次调用递增重试计数; 超过 `request.middlewareRetries` (默认 `1`) 后请求以 `OHNET_RETRY_EXHAUSTED` 失败.
-
 ### Controls in the Pipeline
 
 ```mermaid

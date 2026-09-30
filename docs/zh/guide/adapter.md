@@ -22,7 +22,7 @@ type OhNetAdapter = (context: OhNetContext) => Promise<OhNetResponse>
 - 把用户 `signal` 桥接到 `AbortController`
 - 通过同一个 signal 强制 `request.timeout`
 - 对纯对象 body 自动 JSON 编码
-- 遵守 `request.autoRetries` (对 `fetch` 而言, 映射为网络失败时单次重试)
+- 遵守 `request.autoRetries`: 传 `true` 时, 幂等方法 (`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`) 在网络失败或超时时最多重试 3 次; 传正数则设置重试上限 (最大 3). 重试间隔 300ms.
 
 `fetchAdapter` 适合任何暴露标准 `fetch` 全局的运行时: 现代浏览器, Node 18+, Deno, Bun, Cloudflare Workers, Vercel Edge 等. 只要平台提供 `fetch`, 无需额外配置.
 

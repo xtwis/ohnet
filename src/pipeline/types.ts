@@ -174,9 +174,10 @@ export interface OhNetMiddlewareLeaveControls {
  *   returned. Use it for cleanup, response transformation, or logging.
  *
  * Exceptions thrown inside `enter` or `leave` are caught by the
- * dispatcher and assigned to `context.error`, which then surfaces as an
- * `OHNET_NETWORK` error after the leave chain finishes. Throw
- * `OhNetError` directly to preserve the original code.
+ * dispatcher and assigned to `context.error`, which then surfaces as that
+ * error after the leave chain finishes. Throw `OhNetError` directly to
+ * preserve `type` and `code`; anything else is wrapped in
+ * `OhNetUnknownError` with the original value on `error.error`.
  *
  * @example
  * ```ts

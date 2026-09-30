@@ -70,7 +70,7 @@ function copyResponse(response: OhNetResponse): OhNetResponse {
   }
 }
 
-/** Returns a shallow clone of `context` with a deep-cloned request, a fresh `meta` bag, and a cloned response when present. */
+/** Returns a shallow clone of `context`: `request` and `response` (when present) are copied with cloned headers, `meta` is shallow-copied, and `error` is shared by reference. */
 export function copyContext(context: OhNetContext): OhNetContext {
   return {
     request: copyRequest(context.request),

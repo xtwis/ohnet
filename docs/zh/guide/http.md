@@ -27,9 +27,8 @@ client.options<T>(path, data)
 便捷方法的存在是为了对称和可读. 真正的能力在 `request<T>(config)`:
 
 ```ts
-await client.request<MyResponse>({
+await client.append("/items").request<MyResponse>({
   method: "POST",
-  url: "/items",
   data: { foo: "bar" },
   responseType: "json",
 })
@@ -99,7 +98,8 @@ client.get("/items", qs) // produces: ?z=1&a=2
 ```ts
 const controller = new AbortController()
 
-await client.get("/slow", undefined, undefined, {
+await client.append("/slow").request({
+  method: "GET",
   timeout: 5_000,
   signal: controller.signal,
   middlewareRetries: 3,

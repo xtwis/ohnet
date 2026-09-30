@@ -27,9 +27,8 @@ The first argument is always a **path fragment** concatenated onto the builder's
 Verb helpers exist for symmetry and readability. The actual power sits in `request<T>(config)`:
 
 ```ts
-await client.request<MyResponse>({
+await client.append("/items").request<MyResponse>({
   method: "POST",
-  url: "/items",
   data: { foo: "bar" },
   responseType: "json",
 })
@@ -99,7 +98,8 @@ Three fields matter most when overriding the builder defaults:
 ```ts
 const controller = new AbortController()
 
-await client.get("/slow", undefined, undefined, {
+await client.append("/slow").request({
+  method: "GET",
   timeout: 5_000,
   signal: controller.signal,
   middlewareRetries: 3,

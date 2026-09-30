@@ -59,8 +59,9 @@ export class OhNetBuilder {
    *
    * @remarks
    * The child's `meta` map is reset to `{}` so middleware metadata does not
-   * leak between requests. `request`, `response`, and `error` are deep-cloned
-   * via {@link copyContext}; mutations on the child do not reach the parent.
+   * leak between requests. `copyContext` copies `request` and `response` with
+   * cloned header collections, so mutations on the child's request or response
+   * do not reach the parent; `error` is shared by reference.
    *
    * @param config - Overrides applied after the fork. Defaults to no overrides.
    */
