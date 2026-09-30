@@ -1,5 +1,6 @@
 ---
 title: Concepts
+order: 2
 ---
 
 # {{ $frontmatter.title }}

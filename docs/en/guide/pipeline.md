@@ -1,5 +1,6 @@
 ---
 title: Pipeline
+order: 4
 ---
 
 # {{ $frontmatter.title }}

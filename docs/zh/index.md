@@ -1,5 +1,7 @@
 ---
 layout: home
+title: OhNet
+order: 0
 
 hero:
   name: "@xtwis/ohnet"

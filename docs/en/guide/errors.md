@@ -1,5 +1,6 @@
 ---
 title: Error Handling
+order: 6
 ---
 
 # {{ $frontmatter.title }}
