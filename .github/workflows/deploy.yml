@@ -4,10 +4,16 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   dispatch:
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/repository-dispatch@v3
