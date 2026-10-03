@@ -49,4 +49,4 @@ flowchart LR
 
 - [Builder](./builder.md): 最常用的 API 表面.
 - [Pipeline](./pipeline.md): 中间件与生命周期事件.
-- [HTTP Requests](./http.md): 动词, 解码与查询字符串的实用参考.
+- [Adapter](./adapter.md): 传输层边界, 以及如何编写自己的.

@@ -290,6 +290,109 @@ export function createApi(options: {
 }
 ```
 
+## 8. 取消
+
+facade 可以在两个范围取消请求: 单次调用 (取消单个请求), 或整个 facade (登出, 路由切换, 组件卸载等应用级事件需要取消所有进行中的请求).
+
+### 单次调用
+
+每次调用都可以携带自己的 signal, 用于调用方希望中止单个请求的场景. 动词助手通过 `request()` 接受 signal, facade 侧只需为每个方法追加一个可选 signal 参数就能把它转发出去:
+
+```ts
+import type { OhNetSignal } from "@xtwis/ohnet"
+
+export interface Api {
+  auth: {
+    login: (data?: unknown, signal?: OhNetSignal) => Promise<Session>
+    logout: (signal?: OhNetSignal) => Promise<null>
+  }
+  me: {
+    get: (signal?: OhNetSignal) => Promise<User>
+  }
+}
+```
+
+每个方法都通过 `request()` 重载把 signal 交给 `client.post` / `client.get`:
+
+```ts
+return {
+  auth: {
+    login: (data, signal) => client.post<Session>("/auth/login", data ?? {}, { signal }),
+    logout: signal => client.post<null>("/auth/logout", undefined, { signal }),
+  },
+  me: {
+    get: signal => client.get<User>("/auth/me", undefined, { signal }),
+  },
+}
+```
+
+signal 未经任何中间件改动地穿过管线, 最终到达适配器, 由内置 `fetchAdapter` 把 abort 映射为 `OHNET_ABORT`:
+
+```ts
+const controller = new AbortController()
+setTimeout(() => controller.abort(), 5_000)
+
+try {
+  await api.me.get(controller.signal)
+}
+catch (error) {
+  if (error.code === "OHNET_ABORT") {
+    // 在完成前被取消
+  }
+}
+```
+
+401 重试机制不受影响: `auth.leave` 调用 `controls.retry()` 后, 调度器重新进入管线, 用户的 signal 仍会传递到新的尝试. 如果 signal 已经处于 aborted 状态, 重试会立刻以 `OHNET_ABORT` 失败 (重试与 signal 的交互见 [信号](../guide/signal.md)).
+
+### 整个 facade
+
+当应用级事件需要取消所有进行中的请求时, 在 facade 闭包里持有一个 `OhNetController`, 并把调用方的 signal 链到它上面. 这样不依赖运行时全局, SDK 在任何环境下都能工作. 链接逻辑足够小, 直接内联即可:
+
+```ts
+import { OhNetController } from "@xtwis/ohnet"
+
+export function createApi(options: {
+  baseURL: string
+  storage: TokenStorage
+}): Api & { cancelAll: (reason?: unknown) => void } {
+  const inFlight = new OhNetController()
+
+  const chain = (signal?: OhNetSignal): OhNetSignal => {
+    if (!signal)
+      return inFlight.signal
+    // 任一 signal 都会触发链接后的 signal; 两者都保持订阅.
+    const linked = new OhNetController()
+    const fire = (): void => linked.abort()
+    inFlight.signal.addEventListener?.("abort", fire)
+    signal.addEventListener?.("abort", fire)
+    if (inFlight.signal.aborted || signal.aborted)
+      linked.abort()
+    return linked.signal
+  }
+
+  // ... 构建 refreshClient, auth, client (与第 7 节相同) ...
+
+  return {
+    cancelAll: reason => inFlight.abort(reason),
+    auth: {
+      login: (data, signal) => client.post<Session>("/auth/login", data ?? {}, { signal: chain(signal) }),
+      logout: signal => client.post<null>("/auth/logout", undefined, { signal: chain(signal) }),
+    },
+    me: {
+      get: signal => client.get<User>("/auth/me", undefined, { signal: chain(signal) }),
+    },
+  }
+}
+```
+
+登出时:
+
+```ts
+api.cancelAll("user logged out")
+```
+
+进行中的请求以 `OHNET_ABORT` reject; 此后的调用看到 `inFlight.signal.aborted === true`, 在适配器运行之前就 abort. 在仅面向现代运行时 (浏览器, Node 18+, Deno, Bun) 时, 也可以用平台原生 `AbortController` 替代 `OhNetController`, 两者在 ohnet 看来完全可互换.
+
 ## 401 时会发生什么
 
 当 `business-error`, `unpack`, `auth` 按上述顺序注册时, 过期 token 会产生如下序列:

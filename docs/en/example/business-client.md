@@ -290,6 +290,109 @@ export function createApi(options: {
 }
 ```
 
+## 8. Cancellation
+
+The facade can cancel requests at two scopes: per-call, when the caller wants to abort a single request, or facade-wide, when something app-wide (a logout, a route change, an unmount) should cancel every in-flight call.
+
+### Per-Call
+
+Verb helpers accept a per-call signal through `request()`. Forwarding it through the facade is a one-line type change:
+
+```ts
+import type { OhNetSignal } from "@xtwis/ohnet"
+
+export interface Api {
+  auth: {
+    login: (data?: unknown, signal?: OhNetSignal) => Promise<Session>
+    logout: (signal?: OhNetSignal) => Promise<null>
+  }
+  me: {
+    get: (signal?: OhNetSignal) => Promise<User>
+  }
+}
+```
+
+Each method forwards the signal to `client.post` / `client.get` via the `request()` overload:
+
+```ts
+return {
+  auth: {
+    login: (data, signal) => client.post<Session>("/auth/login", data ?? {}, { signal }),
+    logout: signal => client.post<null>("/auth/logout", undefined, { signal }),
+  },
+  me: {
+    get: signal => client.get<User>("/auth/me", undefined, { signal }),
+  },
+}
+```
+
+The signal flows through every middleware untouched, reaches the adapter, and the built-in `fetchAdapter` maps the abort to `OHNET_ABORT`:
+
+```ts
+const controller = new AbortController()
+setTimeout(() => controller.abort(), 5_000)
+
+try {
+  await api.me.get(controller.signal)
+}
+catch (error) {
+  if (error.code === "OHNET_ABORT") {
+    // cancelled before completion
+  }
+}
+```
+
+A 401 retry still works the same way: `auth.leave` calls `controls.retry()`, the dispatcher re-enters the pipeline, and the user's signal still reaches the new attempt. If the signal is already aborted, the retry attempt fails immediately with `OHNET_ABORT` (see [Signals](../guide/signal.md) for the retry interaction).
+
+### Facade-Wide
+
+When something app-wide should cancel every in-flight call, keep an `OhNetController` in the facade closure and chain caller signals onto it. This avoids depending on any runtime global, so the SDK works in every environment. The chaining is small enough to inline:
+
+```ts
+import { OhNetController } from "@xtwis/ohnet"
+
+export function createApi(options: {
+  baseURL: string
+  storage: TokenStorage
+}): Api & { cancelAll: (reason?: unknown) => void } {
+  const inFlight = new OhNetController()
+
+  const chain = (signal?: OhNetSignal): OhNetSignal => {
+    if (!signal)
+      return inFlight.signal
+    // Either aborts the linked signal; both stay subscribed.
+    const linked = new OhNetController()
+    const fire = (): void => linked.abort()
+    inFlight.signal.addEventListener?.("abort", fire)
+    signal.addEventListener?.("abort", fire)
+    if (inFlight.signal.aborted || signal.aborted)
+      linked.abort()
+    return linked.signal
+  }
+
+  // ... build refreshClient, auth, client (same as section 7) ...
+
+  return {
+    cancelAll: reason => inFlight.abort(reason),
+    auth: {
+      login: (data, signal) => client.post<Session>("/auth/login", data ?? {}, { signal: chain(signal) }),
+      logout: signal => client.post<null>("/auth/logout", undefined, { signal: chain(signal) }),
+    },
+    me: {
+      get: signal => client.get<User>("/auth/me", undefined, { signal: chain(signal) }),
+    },
+  }
+}
+```
+
+On logout:
+
+```ts
+api.cancelAll("user logged out")
+```
+
+In-flight requests reject with `OHNET_ABORT`; future calls see `inFlight.signal.aborted === true` and abort before the adapter runs. When the SDK targets modern runtimes only (browsers, Node 18+, Deno, Bun), the platform `AbortController` is interchangeable with `OhNetController` from ohnet's perspective.
+
 ## What Happens on a 401
 
 With `business-error`, `unpack`, `auth` registered in that order, a stale token produces this sequence:

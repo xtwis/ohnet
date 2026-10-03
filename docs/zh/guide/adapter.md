@@ -126,5 +126,6 @@ const client = new OhNetBuilder({
 
 ## 下一步
 
+- [信号](./signal.md): 鸭子类型信号, controller, 以及适配器如何桥接取消.
 - [错误处理](./errors.md): 你可以基于其分支的三层错误类.
-- [HTTP Requests](./http.md): `responseType`, `params`, 以及每请求选项.
+- [HTTP 请求](./http.md): `responseType`, `params`, 以及每请求选项.

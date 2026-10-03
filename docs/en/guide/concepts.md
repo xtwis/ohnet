@@ -49,4 +49,4 @@ You have enough to read the rest. Start with whichever matters most:
 
 - [Builder](./builder.md): the surface you touch most often.
 - [Pipeline](./pipeline.md): middleware and lifecycle events.
-- [HTTP Requests](./http.md): the practical reference for verbs, decoding, and query strings.
+- [Adapter](./adapter.md): the transport boundary and how to write your own.

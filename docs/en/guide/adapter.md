@@ -126,5 +126,6 @@ The same shape applies to any transport or runtime: gRPC, WebSocket, an in-memor
 
 ## Next
 
+- [Signals](./signal.md): the duck-typed signal, controllers, and how adapters bridge cancellation.
 - [Error Handling](./errors.md): the three error classes you can branch on.
 - [HTTP Requests](./http.md): `responseType`, `params`, and per-request options.
