@@ -1,27 +1,6 @@
 /**
- * Minimal abort interface that adapters and middleware can read from.
- *
- * @remarks
- * Designed to be duck-typed rather than pinned to the browser
- * `AbortSignal`. Three subscription shapes are accepted, all optional:
- * - W3C style (`addEventListener` / `removeEventListener`) - matches
- *   the native `AbortSignal`.
- * - Callback style (`onAbort` setter) - lightweight option for
- *   hand-rolled signals.
- * - Flag-only (`aborted` only) - read-once consumers that poll the flag
- *   without subscribing.
- *
- * `reason` carries the value passed to `abort()`, or `undefined` when
- * none was supplied.
- *
- * @example
- * ```ts
- * const controller = new AbortController()
- * const signal: OhNetSignal = controller.signal
- * if (!signal.aborted) {
- *   // safe to dispatch
- * }
- * ```
+ * @description Minimal abort interface that adapters and middleware can read from. Designed to be duck-typed rather than pinned to the browser `AbortSignal`.
+ * @see https://x.twis.uk/en/ohnet/reference/signal.html#ohnetsignal
  */
 export interface OhNetSignal {
   /** True once the signal has aborted. Always present. */
@@ -37,28 +16,8 @@ export interface OhNetSignal {
 }
 
 /**
- * Lightweight `AbortSignal` implementation that does not depend on the
- * browser or Node global.
- *
- * @remarks
- * Implements {@link OhNetSignal} and accepts all three subscription
- * shapes the interface allows. Useful in environments without
- * `AbortController`, or when a request pipeline needs a self-contained
- * signal it controls.
- *
- * The internal listener set is cleared after `abort()` fires, so
- * listeners fire exactly once. Re-aborting is a no-op: the first
- * `abort()` call wins and subsequent calls do not change `reason` or
- * re-notify listeners.
- *
- * @example
- * ```ts
- * const controller = new OhNetController()
- * controller.signal.addEventListener("abort", () => {
- *   console.log(controller.signal.reason)
- * })
- * controller.abort("user cancelled")
- * ```
+ * @description Lightweight `AbortSignal` implementation that does not depend on the browser or Node global. Listeners fire exactly once after `abort()`.
+ * @see https://x.twis.uk/en/ohnet/reference/signal.html#ohnetcontroller
  */
 export class OhNetController implements OhNetSignal {
   #aborted = false
@@ -67,9 +26,8 @@ export class OhNetController implements OhNetSignal {
   #onAbort: (() => void) | undefined
 
   /**
-   * Returns the controller itself as an `OhNetSignal` view. The
-   * returned object is the same instance, so reads observe mutations
-   * made through the controller.
+   * @description Returns the controller itself as an `OhNetSignal` view.
+   * @see https://x.twis.uk/en/ohnet/reference/signal.html#ohnetcontroller
    */
   get signal(): OhNetSignal {
     return this
@@ -85,7 +43,7 @@ export class OhNetController implements OhNetSignal {
     return this.#reason
   }
 
-  /** Single-callback subscription; returns the currently registered listener, or `undefined`. */
+  /** Currently registered `onAbort` listener, or `undefined`. */
   get onAbort(): (() => void) | undefined {
     return this.#onAbort
   }
@@ -96,14 +54,8 @@ export class OhNetController implements OhNetSignal {
   }
 
   /**
-   * Registers a listener that fires once when the signal aborts.
-   *
-   * @remarks
-   * Non-`"abort"` types are ignored. The listener runs at most once;
-   * the internal listener set is cleared after `abort()` fires.
-   *
-   * @param type - Event name; only `"abort"` is honored.
-   * @param listener - Callback to register.
+   * @description Registers a listener that fires once when the signal aborts. Non-`"abort"` types are ignored.
+   * @see https://x.twis.uk/en/ohnet/reference/signal.html#ohnetcontroller
    */
   addEventListener(type: "abort", listener: () => void): void {
     if (type !== "abort")
@@ -119,15 +71,8 @@ export class OhNetController implements OhNetSignal {
   }
 
   /**
-   * Marks the signal aborted and fires every registered listener plus
-   * `onAbort`.
-   *
-   * @remarks
-   * Subsequent calls are no-ops: the first `abort()` wins. Listeners
-   * are cleared after firing, so they run at most once.
-   *
-   * @param reason - Optional reason stored on `this.reason`. Forwarded
-   *   to listeners through the field, not as an argument.
+   * @description Marks the signal aborted and fires every registered listener plus `onAbort`. Subsequent calls are no-ops.
+   * @see https://x.twis.uk/en/ohnet/reference/signal.html#ohnetcontroller
    */
   abort(reason?: unknown): void {
     if (this.#aborted)
@@ -148,24 +93,8 @@ export class OhNetController implements OhNetSignal {
 }
 
 /**
- * Subscribes `listener` to `signal` and returns an unsubscribe handle.
- *
- * @remarks
- * Returns a no-op function when `signal` is `null` or `undefined`.
- * When `signal.aborted` is already `true`, `listener` runs synchronously
- * before the call returns and the unsubscribe handle is a no-op.
- * Otherwise the listener is attached via the highest-priority
- * subscription shape available:
- * - `addEventListener` when present (W3C style)
- * - `onAbort` setter otherwise (callback style)
- *
- * The returned function detaches the listener when the W3C shape was
- * used; for callback-style signals it restores the previously set
- * `onAbort` listener (preserving any wrapper installed by an earlier
- * subscriber).
- *
- * @param signal - Signal to subscribe to, or `null` / `undefined` to skip.
- * @param listener - Callback fired when the signal aborts.
+ * @description Subscribes `listener` to `signal` and returns an unsubscribe handle. Returns a no-op when `signal` is `null` or `undefined`.
+ * @see https://x.twis.uk/en/ohnet/reference/signal.html#subscribeabort
  */
 export function subscribeAbort(
   signal: OhNetSignal | null | undefined,

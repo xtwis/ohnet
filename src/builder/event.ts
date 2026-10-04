@@ -3,13 +3,8 @@ import type { OhNetEventHandler, OhNetEventName } from "@/pipeline/types"
 import type { OhNetContext } from "@/types"
 
 /**
- * Internal registry of event handlers used by {@link OhNetBuilder.event}.
- *
- * @remarks
- * Not exported directly; reachable from outside only through
- * `builder.event` or `builder.on` / `builder.off`. Methods return new
- * instances rather than mutating the receiver, keeping builders immutable
- * under chained configuration.
+ * @internal
+ * @description Internal registry of event handlers used by {@link OhNetBuilder.event}. Reachable from outside only through `builder.event` or `builder.on` / `builder.off`. Methods return new instances.
  */
 export class OhNetEventBuilder {
   #events: Map<OhNetEventName, OhNetEventHandler[]>
@@ -19,7 +14,7 @@ export class OhNetEventBuilder {
   }
 
   /**
-   * Returns a shallow copy of this registry, preserving handler order.
+   * @description Returns a shallow copy of this registry, preserving handler order.
    */
   fork(): OhNetEventBuilder {
     const child = new OhNetEventBuilder()
@@ -30,11 +25,7 @@ export class OhNetEventBuilder {
   }
 
   /**
-   * Returns the handlers registered for an event, or every registered handler
-   * across all events when `event` is omitted.
-   *
-   * @remarks
-   * The returned array is a fresh copy; mutating it does not affect the registry.
+   * @description Returns the handlers registered for an event, or every registered handler across all events when `event` is omitted. The returned array is a fresh copy.
    */
   list(event?: OhNetEventName): readonly OhNetEventHandler[] {
     if (event === undefined) {
@@ -46,13 +37,7 @@ export class OhNetEventBuilder {
   }
 
   /**
-   * Registers a handler for an event and returns a new registry with the
-   * handler appended.
-   *
-   * @remarks
-   * Duplicate registrations of the same callback are preserved and will fire
-   * once per registration. `off` removes every registration that matches by
-   * reference.
+   * @description Registers a handler for an event and returns a new registry with the handler appended. Duplicate registrations are preserved.
    */
   on(event: OhNetEventName, callback: OhNetEventHandler): OhNetEventBuilder {
     const child = this.fork()
@@ -63,12 +48,7 @@ export class OhNetEventBuilder {
   }
 
   /**
-   * Removes every registration matching the given callback reference and
-   * returns a new registry.
-   *
-   * @remarks
-   * No-op when the event has no registrations. The empty-event entry is
-   * dropped to keep `list()` output free of zero-length arrays.
+   * @description Removes every registration matching the given callback reference and returns a new registry. The empty-event entry is dropped when no callbacks are left.
    */
   off(event: OhNetEventName, target: OhNetEventHandler): OhNetEventBuilder {
     const child = this.fork()
@@ -83,12 +63,7 @@ export class OhNetEventBuilder {
   }
 
   /**
-   * Invokes every handler registered for `event` in registration order.
-   *
-   * @remarks
-   * Exceptions thrown by handlers are caught and discarded so a faulty
-   * observer cannot break the pipeline. The pipeline never observes the
-   * thrown error; surface critical failures through `context.error` instead.
+   * @description Invokes every handler registered for `event` in registration order. Exceptions thrown by handlers are caught and discarded.
    */
   emit(event: OhNetEventName, adapter: OhNetAdapter, context: OhNetContext): void {
     const list = this.#events.get(event)

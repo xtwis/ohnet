@@ -8,14 +8,17 @@ export type OhNetHeaderEntry = readonly string[]
 export type OhNetHeaderEntries = Iterable<OhNetHeaderEntry>
 
 /**
- * Duck-typed surface compatible with the browser `Headers` class;
- * `OhNetHeader` reads values through it when no iterator is present.
+ * @description Duck-typed surface compatible with the browser `Headers` class.
+ * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
  */
 export interface OhNetHeaderIterable {
   forEach: (callback: (value: string, key: string) => void, thisArg?: unknown) => void
 }
 
-/** Union of every input shape the constructor and `concat()` accept. */
+/**
+ * @description Union of every input shape the constructor and `concat()` accept.
+ * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
+ */
 export type OhNetHeaderLike
   = | OhNetHeader
     | OhNetHeaderRecord
@@ -39,55 +42,15 @@ function normalizeValue(value: string): string {
 }
 
 /**
- * Multi-value HTTP header collection with case-insensitive names and
- * RFC 7230 token validation.
- *
- * @remarks
- * Behaves like the browser `Headers` class but lives in the ohnet
- * namespace and supports a wider set of input shapes through the
- * constructor and `concat()`. Names are trimmed, normalized to
- * lowercase, and validated against the RFC 7230 token grammar;
- * values reject NUL, CR, and LF. Each name can hold multiple values
- * (`append` adds, `set` replaces), matching how servers and
- * intermediaries may emit them.
- *
- * Iteration surfaces every `(name, value)` pair - not one entry per
- * name - so consumers that need to handle duplicates (such as
- * `set-cookie`) can do so without manually splitting joined strings.
- * `getSetCookie()` exposes the `set-cookie` values as an array, the
- * same way `Headers.getSetCookie()` does.
- *
- * `clone()` and `concat()` produce new instances; the public
- * mutators (`append`, `set`, `delete`) return `this` for fluent use.
- *
- * @example
- * ```ts
- * const headers = new OhNetHeader()
- *   .set("content-type", "application/json")
- *   .append("set-cookie", "a=1")
- *   .append("set-cookie", "b=2")
- *
- * headers.get("content-type")          // "application/json"
- * headers.getSetCookie()               // ["a=1", "b=2"]
- * [...headers]                         // [["content-type", "application/json"], ["set-cookie", "a=1"], ["set-cookie", "b=2"]]
- * ```
+ * @description Multi-value HTTP header collection with case-insensitive names and RFC 7230 token validation. Behaves like the browser `Headers` class.
+ * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
  */
 export class OhNetHeader implements Iterable<[string, string]> {
   readonly #store = new Map<string, string[]>()
 
   /**
-   * Builds a new collection from `init`.
-   *
-   * @remarks
-   * Accepts any {@link OhNetHeaderLike} shape:
-   * - `undefined` / `null` - empty collection.
-   * - `OhNetHeader` - deep copy of the source.
-   * - `Iterable<[name, value]>` - `append` each pair.
-   * - Duck-typed `forEach` (such as the browser `Headers`) -
-   *   `forEach` with `(value, key)` argument order.
-   * - `Record<string, string>` - one entry per property.
-   *
-   * @param init - Optional source to copy from. Defaults to empty.
+   * @description Builds a new collection from `init`. Accepts `undefined`, `OhNetHeader`, an `Iterable<[name, value]>`, a duck-typed `forEach`, or a `Record<string, string>`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   constructor(init?: OhNetHeaderLike | null) {
     if (init === undefined || init === null)
@@ -116,25 +79,16 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Alias of the constructor for call sites that read more naturally
-   * with a static factory.
-   *
-   * @param init - Optional source to copy from. Same shapes as the constructor.
+   * @description Alias of the constructor for call sites that read more naturally with a static factory.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   static from(init?: OhNetHeaderLike | null): OhNetHeader {
     return new OhNetHeader(init)
   }
 
   /**
-   * Adds `value` to the list of values stored under `name`.
-   *
-   * @remarks
-   * Multi-value semantics: existing values are kept. Throws `TypeError`
-   * when `name` is empty or fails RFC 7230 token validation, or when
-   * `value` contains NUL, CR, or LF.
-   *
-   * @param name - Header name. Compared case-insensitively.
-   * @param value - Header value. Trimmed of surrounding whitespace.
+   * @description Adds `value` to the list of values stored under `name`. Throws `TypeError` on invalid names/values.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   append(name: string, value: string): this {
     const key = normalizeName(name)
@@ -148,11 +102,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Replaces any existing values for `name` with a single-element
-   * list containing `value`.
-   *
-   * @param name - Header name. Compared case-insensitively.
-   * @param value - Header value. Trimmed of surrounding whitespace.
+   * @description Replaces any existing values for `name` with a single-element list containing `value`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   set(name: string, value: string): this {
     this.#store.set(normalizeName(name), [normalizeValue(value)])
@@ -160,15 +111,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Returns the values stored under `name`, joined with `", "`, or
-   * `null` when the name is absent.
-   *
-   * @remarks
-   * Multi-value headers are joined into a single string. Use
-   * {@link getSetCookie} for `set-cookie` values that must stay
-   * separate.
-   *
-   * @param name - Header name. Compared case-insensitively.
+   * @description Returns the values stored under `name`, joined with `", "`, or `null` when the name is absent.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   get(name: string): string | null {
     const values = this.#store.get(normalizeName(name))
@@ -176,47 +120,32 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Returns whether any value is stored under `name`.
-   *
-   * @param name - Header name. Compared case-insensitively.
+   * @description Returns whether any value is stored under `name`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   has(name: string): boolean {
     return this.#store.has(normalizeName(name))
   }
 
   /**
-   * Removes every value stored under `name` and reports whether any
-   * were present.
-   *
-   * @param name - Header name. Compared case-insensitively.
+   * @description Removes every value stored under `name` and reports whether any were present.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   delete(name: string): boolean {
     return this.#store.delete(normalizeName(name))
   }
 
   /**
-   * Returns the values stored under `set-cookie` as an array.
-   *
-   * @remarks
-   * Set-cookie values must not be joined: `set-cookie: a=1, b=2` is
-   * not equivalent to two separate cookies. This accessor mirrors
-   * `Headers.getSetCookie()` and returns a fresh copy, so mutating
-   * the result does not affect the collection.
+   * @description Returns the values stored under `set-cookie` as an array. Mirrors `Headers.getSetCookie()`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   getSetCookie(): string[] {
     return [...(this.#store.get("set-cookie") ?? [])]
   }
 
   /**
-   * Invokes `callback` once per stored `(value, name)` pair.
-   *
-   * @remarks
-   * Multi-value headers yield once per value, not once per name. The
-   * callback receives `(value, name, parent)` in that order; the
-   * `parent` argument exposes the receiver for chaining.
-   *
-   * @param callback - Function invoked for each value.
-   * @param thisArg - Optional `this` binding for the callback.
+   * @description Invokes `callback` once per stored `(value, name)` pair. Multi-value headers yield once per value.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   forEach(callback: (value: string, key: string, parent: OhNetHeader) => void, thisArg?: unknown): void {
     for (const [key, values] of this.#store) {
@@ -226,11 +155,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Yields each stored `name` once per value.
-   *
-   * @remarks
-   * A header with two `set-cookie` values yields the name twice, so
-   * `keys()` and `values()` stay aligned through iteration.
+   * @description Yields each stored `name` once per value so `keys()` and `values()` stay aligned through iteration.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   * keys(): IterableIterator<string> {
     for (const [key, values] of this.#store) {
@@ -239,7 +165,10 @@ export class OhNetHeader implements Iterable<[string, string]> {
     }
   }
 
-  /** Yields each stored value once. */
+  /**
+   * @description Yields each stored value once.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
+   */
   * values(): IterableIterator<string> {
     for (const values of this.#store.values()) {
       for (const value of values)
@@ -248,8 +177,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Yields each `[name, value]` pair. Multi-value headers produce
-   * one entry per value.
+   * @description Yields each `[name, value]` pair. Multi-value headers produce one entry per value.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   * entries(): IterableIterator<[string, string]> {
     for (const [key, values] of this.#store) {
@@ -259,30 +188,24 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Delegates to {@link entries}. Makes the collection spreadable as
-   * `[...headers]`.
+   * @description Delegates to {@link entries}. Makes the collection spreadable as `[...headers]`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   [Symbol.iterator](): IterableIterator<[string, string]> {
     return this.entries()
   }
 
   /**
-   * Returns a deep copy of this collection. The result has the same
-   * multi-value layout but does not share storage with the receiver.
+   * @description Returns a deep copy of this collection.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   clone(): OhNetHeader {
     return new OhNetHeader(this)
   }
 
   /**
-   * Returns a new collection with `other` appended on top of this one.
-   *
-   * @remarks
-   * Values in `other` replace values in the receiver for the same
-   * name; values unique to either side are preserved. The receiver
-   * is not mutated.
-   *
-   * @param other - Source to layer on top of the receiver.
+   * @description Returns a new collection with `other` layered on top of this one. Values in `other` replace values in the receiver for the same name; the receiver is not mutated.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   concat(other: OhNetHeaderLike): OhNetHeader {
     const source = OhNetHeader.from(other)
@@ -293,11 +216,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Returns a plain object view with values joined by `", "`.
-   *
-   * @remarks
-   * Multi-value headers collapse into a single string. Use
-   * {@link entries} when multi-value fidelity matters.
+   * @description Returns a plain object view with values joined by `", "`. Multi-value headers collapse into a single string.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   toRecord(): OhNetHeaderRecord {
     const record: OhNetHeaderRecord = {}
@@ -307,8 +227,8 @@ export class OhNetHeader implements Iterable<[string, string]> {
   }
 
   /**
-   * Same as {@link toRecord}. Used by `JSON.stringify` so the
-   * collection serializes to a plain object.
+   * @description Same as {@link toRecord}. Used by `JSON.stringify`.
+   * @see https://x.twis.uk/en/ohnet/reference/header.html#ohnetheader
    */
   toJSON(): OhNetHeaderRecord {
     return this.toRecord()

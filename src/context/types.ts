@@ -4,13 +4,8 @@ import type { OhNetSignal } from "@/model/signal"
 import type { OhNetMethod, OhNetParams, OhNetResponseKind, OhNetResponseType } from "@/types"
 
 /**
- * Partial request configuration used to override a builder's current state.
- *
- * @remarks
- * Every field is optional. {@link resolveRequest} merges a partial config
- * into an existing `OhNetRequest`, leaving undefined fields untouched.
- * Builders accept this shape on the constructor, `fork` / `add`,
- * `request`, and the HTTP verb helpers.
+ * @description Partial request configuration used to override a builder's current state. Every field is optional.
+ * @see https://x.twis.uk/en/ohnet/reference/builder.html#ohnetrequestconfig
  */
 export interface OhNetRequestConfig {
   /** Target URL. Replaces the builder's current URL. */
@@ -29,22 +24,15 @@ export interface OhNetRequestConfig {
   timeout?: number
   /** Maximum middleware-driven retries per request. Defaults to `1`. */
   middlewareRetries?: number
-  /** Adapter-level auto-retry signal; passed to the adapter verbatim, semantics adapter-defined. */
+  /** Adapter-level auto-retry signal; passed to the adapter verbatim. */
   autoRetries?: boolean | number
   /** Body decoding strategy for the adapter. */
   responseType?: OhNetResponseType
 }
 
 /**
- * Loose response shape produced by adapters and consumed by {@link createResponse}.
- *
- * @remarks
- * Lets adapters return responses that mirror their underlying transport
- * without first wrapping them in {@link OhNetResponse}. Fields that
- * {@link createResponse} can synthesize (`statusText`, `ok`, `redirected`,
- * `type`) are optional; the rest must be supplied.
- *
- * @typeParam T - Type of the decoded `data` payload. Defaults to `unknown`.
+ * @description Loose response shape produced by adapters and consumed by {@link createResponse}. Lets adapters skip first wrapping them in {@link OhNetResponse}.
+ * @see https://x.twis.uk/en/ohnet/reference/transport.html#ohnetresponselike
  */
 export interface OhNetResponseLike<T = unknown> {
   /** HTTP status code. Required. */
@@ -68,18 +56,10 @@ export interface OhNetResponseLike<T = unknown> {
 }
 
 /**
- * Top-level configuration passed to `new OhNetBuilder(config)`.
- *
- * @remarks
- * Same fields as {@link OhNetRequestConfig} with the addition of an
- * optional transport. When `adapter` is omitted, the built-in
- * `fetchAdapter` is used.
+ * @description Top-level configuration passed to `new OhNetBuilder(config)`. When `adapter` is omitted, the built-in `fetchAdapter` is used.
+ * @see https://x.twis.uk/en/ohnet/reference/builder.html#ohnetconfig
  */
 export interface OhNetConfig extends OhNetRequestConfig {
-  /**
-   * Transport implementation. Stored on the builder and invoked
-   * once per request; the same adapter is shared across every forked
-   * child. Defaults to the built-in `fetchAdapter` when omitted.
-   */
+  /** Transport implementation. Stored on the builder and invoked once per request. Defaults to the built-in `fetchAdapter`. */
   adapter?: OhNetAdapter
 }

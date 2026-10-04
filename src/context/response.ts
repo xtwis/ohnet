@@ -3,17 +3,8 @@ import type { OhNetResponse } from "@/types"
 import { OhNetHeader } from "@/model/header"
 
 /**
- * Normalizes an adapter-supplied response into {@link OhNetResponse}.
- *
- * @remarks
- * Fills in optional fields with sensible defaults: `statusText` defaults
- * to an empty string, `ok` defaults to `status` in the 200-299 range,
- * `redirected` defaults to `false`, `type` defaults to `"default"`. The
- * header collection is rebuilt through {@link OhNetHeader.from}, so the
- * result does not share storage with the input.
- *
- * @typeParam T - Type of the decoded `data` payload.
- * @param input - Loose response shape produced by an adapter.
+ * @description Normalizes an adapter-supplied response into {@link OhNetResponse}, filling in optional fields with sensible defaults.
+ * @see https://x.twis.uk/en/ohnet/reference/transport.html#createresponse
  */
 export function createResponse<T>(input: OhNetResponseLike<T>): OhNetResponse<T> {
   const status = input.status

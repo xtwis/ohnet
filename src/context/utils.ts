@@ -15,21 +15,8 @@ function stringifyPair(key: string, value: unknown): string[] {
 }
 
 /**
- * Serializes a query string source into an encoded string.
- *
- * @remarks
- * Three input shapes are accepted (see {@link OhNetParams}):
- * - `string` - returned verbatim after stripping a leading `?`.
- * - `Record<string, unknown>` - entries are URL-encoded in insertion
- *   order. Arrays expand into repeated keys (`tag=a&tag=b`); `null`
- *   and `undefined` values are skipped.
- * - `Iterable<[name, value]>` - raw pair iteration for callers that
- *   need to preserve order or emit duplicate keys.
- *
- * The result has no leading `?`. Callers that append the result to a
- * URL are responsible for adding the separator (see {@link appendQuery}).
- *
- * @param params - Query string source in any accepted shape.
+ * @description Serializes a query string source into an encoded string. Accepts a `string`, a `Record`, or an `Iterable<[name, value]>`. The result has no leading `?`.
+ * @see https://x.twis.uk/en/ohnet/reference/transport.html#buildquerystring
  */
 export function buildQueryString(params: OhNetParams): string {
   if (typeof params === "string")
@@ -49,7 +36,10 @@ export function buildQueryString(params: OhNetParams): string {
   return pairs.join("&")
 }
 
-/** Appends `query` to `url` with the appropriate `?` or `&` separator; no-op when `query` is empty. */
+/**
+ * @description Appends `query` to `url` with the appropriate `?` or `&` separator; no-op when `query` is empty.
+ * @see https://x.twis.uk/en/ohnet/reference/transport.html#buildquerystring
+ */
 export function appendQuery(url: string, query: string): string {
   if (!query)
     return url
@@ -70,7 +60,10 @@ function copyResponse(response: OhNetResponse): OhNetResponse {
   }
 }
 
-/** Returns a shallow clone of `context`: `request` and `response` (when present) are copied with cloned headers, `meta` is shallow-copied, and `error` is shared by reference. */
+/**
+ * @internal
+ * @description Returns a shallow clone of `context`: `request` and `response` (when present) are copied with cloned headers; `error` is shared by reference.
+ */
 export function copyContext(context: OhNetContext): OhNetContext {
   return {
     request: copyRequest(context.request),
@@ -80,7 +73,10 @@ export function copyContext(context: OhNetContext): OhNetContext {
   }
 }
 
-/** Returns a fresh context seeded with the default {@link DEFAULT_OHNET_REQUEST}. */
+/**
+ * @internal
+ * @description Returns a fresh context seeded with the default request.
+ */
 export function createDefaultContext(): OhNetContext {
   return {
     request: copyRequest(DEFAULT_OHNET_REQUEST),

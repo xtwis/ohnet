@@ -115,12 +115,8 @@ async function request(context: OhNetContext): Promise<OhNetResponse> {
 }
 
 /**
- * Default transport built on the global `fetch`.
- *
- * @remarks
- * Throws `OHNET_NO_FETCH` when `globalThis.fetch` is unavailable.
- * Bridges the user `signal`, enforces `request.timeout`, JSON-encodes
- * plain object / array bodies, and honors `request.autoRetries`.
+ * @description Default transport built on the global `fetch`. Bridges the user `signal`, enforces `request.timeout`, JSON-encodes plain object / array bodies, and honors `request.autoRetries`. Throws `OHNET_NO_FETCH` when `globalThis.fetch` is unavailable.
+ * @see https://x.twis.uk/en/ohnet/guide/adapter.html#built-in-fetchadapter
  */
 export async function fetchAdapter(context: OhNetContext): Promise<OhNetResponse> {
   const { method, autoRetries } = context.request

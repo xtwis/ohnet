@@ -2,10 +2,8 @@ import type { OhNetRequestConfig } from "@/context/types"
 import type { OhNetRequest } from "@/types"
 
 /**
- * Merges a partial config into a base request and returns a new
- * request; `base` is not mutated. The header collection is always
- * cloned, even when `config.headers` is omitted, so the result does
- * not share storage with `base`.
+ * @internal
+ * @description Merges a partial config into a base request and returns a new request; `base` is not mutated. The header collection is always cloned.
  */
 export function resolveRequest(base: OhNetRequest, config: OhNetRequestConfig): OhNetRequest {
   const request: OhNetRequest = { ...base, headers: base.headers.clone() }
