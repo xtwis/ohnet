@@ -148,3 +148,6 @@ vite.config.ts.timestamp-*
 
 # whatsnext skill (cross-session dev notes)
 .whatsnext
+
+# OhDoc Vitepress
+.vitepress/
