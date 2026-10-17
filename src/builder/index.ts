@@ -3,8 +3,8 @@ import type { OhNetConfig } from "@/context/types"
 import type { OhNetEventHandler, OhNetEventName, OhNetMiddleware } from "@/pipeline/types"
 import type { OhNetContext, OhNetParams } from "@/types"
 import { fetchAdapter } from "@/adapter/fetch"
-import { OhNetEventBuilder } from "@/builder/event"
-import { OhNetMiddlewareBuilder } from "@/builder/middleware"
+import { OhNetEventQuery } from "@/builder/event"
+import { OhNetMiddlewareQuery } from "@/builder/middleware"
 import { OHNET_ERROR_CODE, OHNET_ERROR_MESSAGE, OhNetInternalError } from "@/config/error"
 import { resolveRequest } from "@/context/request"
 import { appendQuery, buildQueryString, copyContext, createDefaultContext } from "@/context/utils"
@@ -17,8 +17,8 @@ import { compose } from "@/pipeline/dispatcher"
 export class OhNetBuilder {
   #adapter: OhNetAdapter
   #context: OhNetContext
-  #middleware: OhNetMiddlewareBuilder
-  #event: OhNetEventBuilder
+  #middlewares: OhNetMiddleware[]
+  #events: Map<OhNetEventName, OhNetEventHandler[]>
 
   /**
    * @description Build a new {@link OhNetBuilder}. Only `url` and `adapter` are required at construction; other fields can be supplied later via `fork`, `append`, or verb helpers.
@@ -27,8 +27,8 @@ export class OhNetBuilder {
   constructor(config: OhNetConfig) {
     this.#adapter = config.adapter === undefined ? fetchAdapter : config.adapter
     this.#context = createDefaultContext()
-    this.#middleware = new OhNetMiddlewareBuilder()
-    this.#event = new OhNetEventBuilder()
+    this.#middlewares = []
+    this.#events = new Map()
     this.applyConfig(config)
   }
 
@@ -41,8 +41,11 @@ export class OhNetBuilder {
     child.#adapter = this.#adapter
     child.#context = copyContext(this.#context)
     child.#context.meta = {}
-    child.#middleware = this.#middleware.fork(this.#middleware.list())
-    child.#event = this.#event.fork()
+    child.#middlewares = [...this.#middlewares]
+    child.#events = new Map()
+    for (const [event, list] of this.#events) {
+      child.#events.set(event, [...list])
+    }
     child.applyConfig(config)
     return child
   }
@@ -56,12 +59,21 @@ export class OhNetBuilder {
   }
 
   /**
-   * @description Registers (or replaces) a middleware by `name` and returns a new builder.
+   * @description Registers (or replaces) a middleware by `name` and returns a new builder. Replacement preserves the original registration index. Throws `OHNET_MIDDLEWARE_NAME` when the middleware has no non-whitespace name.
    * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohnetmiddleware
    */
   with(middleware: OhNetMiddleware): OhNetBuilder {
+    const name = middleware.name
+    if (typeof name !== "string" || name.trim() === "") {
+      throw new OhNetInternalError(OHNET_ERROR_CODE.MIDDLEWARE_NAME, OHNET_ERROR_MESSAGE.MIDDLEWARE_NAME)
+    }
+
     const child = this.fork()
-    child.#middleware = this.#middleware.with(middleware)
+    const index = child.#middlewares.findIndex(existing => existing.name === name)
+    if (index === -1)
+      child.#middlewares.push(middleware)
+    else
+      child.#middlewares[index] = middleware
     return child
   }
 
@@ -71,16 +83,8 @@ export class OhNetBuilder {
    */
   clean(name: string): OhNetBuilder {
     const child = this.fork()
-    child.#middleware = this.#middleware.clean(name)
+    child.#middlewares = child.#middlewares.filter(middleware => middleware.name !== name)
     return child
-  }
-
-  /**
-   * @description Returns the middleware registry of this builder for introspection; mutations are not propagated.
-   * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohnetmiddleware
-   */
-  get middleware(): OhNetMiddlewareBuilder {
-    return this.#middleware
   }
 
   /**
@@ -89,7 +93,9 @@ export class OhNetBuilder {
    */
   on(event: OhNetEventName, callback: OhNetEventHandler): OhNetBuilder {
     const child = this.fork()
-    child.#event = this.#event.on(event, callback)
+    const list = [...(child.#events.get(event) ?? [])]
+    list.push(callback)
+    child.#events.set(event, list)
     return child
   }
 
@@ -99,16 +105,31 @@ export class OhNetBuilder {
    */
   off(event: OhNetEventName, target: OhNetEventHandler): OhNetBuilder {
     const child = this.fork()
-    child.#event = this.#event.off(event, target)
+    const current = child.#events.get(event)
+    if (!current)
+      return child
+    const next = current.filter(handler => handler !== target)
+    if (next.length === 0)
+      child.#events.delete(event)
+    else
+      child.#events.set(event, next)
     return child
   }
 
   /**
-   * @description Returns the event registry of this builder for introspection; mutations are not propagated.
+   * @description Returns a read-only query over the current middleware registry. The query is a snapshot at the time of the call; mutations on the query are not propagated back to the builder.
+   * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohnetmiddleware
+   */
+  get middlewares(): OhNetMiddlewareQuery {
+    return new OhNetMiddlewareQuery([...this.#middlewares])
+  }
+
+  /**
+   * @description Returns a read-only query over the current event registry. The query is a snapshot at the time of the call; mutations on the query are not propagated back to the builder.
    * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohneteventhandler
    */
-  get event(): OhNetEventBuilder {
-    return this.#event
+  get events(): OhNetEventQuery {
+    return new OhNetEventQuery(new Map(this.#events))
   }
 
   /**
@@ -185,6 +206,22 @@ export class OhNetBuilder {
 
   /**
    * @internal
+   * @description Triggers every handler registered for `event` in registration order. Exceptions thrown by handlers are caught and discarded. Used by the pipeline dispatcher during request execution.
+   */
+  private emit(event: OhNetEventName): void {
+    const list = this.#events.get(event)
+    if (!list)
+      return
+    for (const handler of list) {
+      try {
+        handler(this.#adapter, this.#context)
+      }
+      catch {}
+    }
+  }
+
+  /**
+   * @internal
    * @description Merges a partial config into the current request, leaving undefined fields untouched.
    */
   private applyConfig(config: OhNetConfig): void {
@@ -201,7 +238,12 @@ export class OhNetBuilder {
       this.#context.request.url = appendQuery(this.#context.request.url, buildQueryString(params))
     }
 
-    const normal = await compose(this.#adapter, this.#context, this.#middleware.list(), this.#event)
+    const normal = await compose(
+      this.#adapter,
+      this.#context,
+      this.#middlewares,
+      event => this.emit(event),
+    )
     if (this.#context.error) {
       throw this.#context.error
     }

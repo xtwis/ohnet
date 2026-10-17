@@ -1,6 +1,6 @@
 import type { OhNetAdapter } from "@/adapter/types"
-import type { OhNetEventBuilder } from "@/builder/event"
 import type {
+  OhNetEventName,
   OhNetMiddleware,
   OhNetMiddlewareEnterControls,
   OhNetMiddlewareLeaveControls,
@@ -33,12 +33,12 @@ export async function compose(
   adapter: OhNetAdapter,
   context: OhNetContext,
   middlewares: OhNetMiddleware[],
-  events?: OhNetEventBuilder,
+  emit?: (event: OhNetEventName) => void,
 ): Promise<boolean> {
   const maxRetries = context.request.middlewareRetries ?? 1
   let retries = 0
 
-  events?.emit(OHNET_EVENT.START, adapter, context)
+  emit?.(OHNET_EVENT.START)
 
   while (true) {
     let terminated = false
@@ -47,7 +47,7 @@ export async function compose(
     const stack: OhNetMiddleware[] = []
 
     if (retries > 0)
-      events?.emit(OHNET_EVENT.RETRY, adapter, context)
+      emit?.(OHNET_EVENT.RETRY)
 
     for (let i = 0; i < middlewares.length; i++) {
       if (terminated || skipped || retrying)
@@ -70,7 +70,7 @@ export async function compose(
       }
     }
 
-    events?.emit(OHNET_EVENT.REQUEST, adapter, context)
+    emit?.(OHNET_EVENT.REQUEST)
 
     if (!terminated && !skipped && !retrying) {
       await run(context, async () => {
@@ -78,7 +78,7 @@ export async function compose(
       })
     }
 
-    events?.emit(OHNET_EVENT.RESPONSE, adapter, context)
+    emit?.(OHNET_EVENT.RESPONSE)
 
     for (let i = stack.length - 1; i >= 0; i--) {
       if (terminated || retrying)
@@ -98,12 +98,12 @@ export async function compose(
     if (!retrying) {
       const normal = !terminated && !skipped
       if (context.error)
-        events?.emit(OHNET_EVENT.ERROR, adapter, context)
+        emit?.(OHNET_EVENT.ERROR)
       else if (context.response)
-        events?.emit(OHNET_EVENT.SUCCESS, adapter, context)
+        emit?.(OHNET_EVENT.SUCCESS)
       else if (!normal)
-        events?.emit(OHNET_EVENT.SKIP, adapter, context)
-      events?.emit(OHNET_EVENT.FINISH, adapter, context)
+        emit?.(OHNET_EVENT.SKIP)
+      emit?.(OHNET_EVENT.FINISH)
       return normal
     }
 
@@ -112,8 +112,8 @@ export async function compose(
         OHNET_ERROR_CODE.RETRY_EXHAUSTED,
         OHNET_ERROR_MESSAGE.RETRY_EXHAUSTED,
       )
-      events?.emit(OHNET_EVENT.ERROR, adapter, context)
-      events?.emit(OHNET_EVENT.FINISH, adapter, context)
+      emit?.(OHNET_EVENT.ERROR)
+      emit?.(OHNET_EVENT.FINISH)
       return false
     }
 
