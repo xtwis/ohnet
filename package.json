@@ -61,7 +61,7 @@
     "@commitlint/config-conventional": "^21.2.3",
     "@types/node": "^26.1.1",
     "@vitest/ui": "^4.1.9",
-    "@xtwis/ohdoc": "1.0.0",
+    "@xtwis/ohdoc": "1.1.0",
     "eslint": "^10.6.0",
     "eslint-plugin-format": "^2.0.1",
     "husky": "^9.1.7",
