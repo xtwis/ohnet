@@ -1,6 +1,6 @@
 {
   "name": "@xtwis/ohnet",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "packageManager": "pnpm@11.24.0",
   "description": "Fluent, immutable HTTP client with middleware pipeline for building business-oriented request frameworks.",
   "author": "Twisuki",
@@ -37,6 +37,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
+    "CHANGELOG.md",
     "LICENSE",
     "README.md",
     "dist"

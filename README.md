@@ -51,6 +51,10 @@ Full guides, API reference, and examples live at:
 - English: <https://x.twis.uk/en/ohnet/>
 - 简体中文: <https://x.twis.uk/zh/ohnet/>
 
+## Changelog
+
+[CHANGELOG.md](./CHANGELOG.md)
+
 ## License
 
 [MIT](./LICENSE)
