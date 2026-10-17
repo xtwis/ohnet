@@ -4,13 +4,13 @@ import type { OhNetSignal } from "@/model/signal"
 import type { OhNetMethod, OhNetParams, OhNetResponseKind, OhNetResponseType } from "@/types"
 
 /**
- * @description Partial request configuration used to override a builder's current state. Every field is optional.
- * @see https://x.twis.uk/en/ohnet/reference/builder.html#ohnetrequestconfig
+ * @description Partial request configuration used to override a client's current state. Every field is optional.
+ * @see https://x.twis.uk/en/ohnet/reference/client.html#ohnetrequestconfig
  */
 export interface OhNetRequestConfig {
-  /** Target URL. Replaces the builder's current URL. */
+  /** Target URL. Replaces the client's current URL. */
   url?: string
-  /** HTTP method. Replaces the builder's current method. */
+  /** HTTP method. Replaces the client's current method. */
   method?: OhNetMethod
   /** Headers to merge on top of the existing collection (right-side wins per name). */
   headers?: OhNetHeaderLike
@@ -57,9 +57,9 @@ export interface OhNetResponseLike<T = unknown> {
 
 /**
  * @description Top-level configuration passed to `OhNetClient.create(config)`. When `adapter` is omitted, the built-in `fetchAdapter` is used.
- * @see https://x.twis.uk/en/ohnet/reference/builder.html#ohnetconfig
+ * @see https://x.twis.uk/en/ohnet/reference/client.html#ohnetconfig
  */
 export interface OhNetConfig extends OhNetRequestConfig {
-  /** Transport implementation. Stored on the builder and invoked once per request. Defaults to the built-in `fetchAdapter`. */
+  /** Transport implementation. Stored on the client and invoked once per request. Defaults to the built-in `fetchAdapter`. */
   adapter?: OhNetAdapter
 }

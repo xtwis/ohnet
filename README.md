@@ -12,10 +12,10 @@ Fluent, immutable HTTP client with middleware pipeline for building business-ori
 </div>
 
 ```ts
-new OhNetBuilder({ url: "https://api.example.com" }).get<{ id: string, name: string }>("/users/1")
+OhNetClient.create({ url: "https://api.example.com" }).get<{ id: string, name: string }>("/users/1")
 ```
 
-- **Fluent Immutable Builder**: Every configuration call returns a new instance. Safe to derive child clients without mutating shared state.
+- **Fluent Immutable Client**: Every configuration call returns a new instance. Safe to derive child clients without mutating shared state.
 - **Middleware Pipeline**: Declarative enter/leave hooks with skip, terminate, and retry controls for each phase.
 - **Pluggable Transport**: Swap the adapter to use gRPC, WebSocket, axios, XMLHttpRequest, or in-memory mocks. The pipeline stays unchanged.
 - **Unified Error System**: Three-layer hierarchy (internal, adapter, unknown). Branch on `code`, not `message`, with `instanceof` discrimination.
@@ -36,9 +36,9 @@ yarn add @xtwis/ohnet
 ## Quick Start
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
 
 const user = await client.get<{ id: string, name: string }>("/users/1")
 console.log(user.id, user.name)

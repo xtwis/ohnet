@@ -34,7 +34,7 @@ export type OhNetParams
  * @see https://x.twis.uk/en/ohnet/reference/transport.html#ohnetrequest
  */
 export interface OhNetRequest {
-  /** Target URL. May include an existing query string; the builder does not strip it. */
+  /** Target URL. May include an existing query string; the client does not strip it. */
   url: string
   /** HTTP method. */
   method: OhNetMethod
@@ -82,7 +82,7 @@ export interface OhNetResponse<T = unknown> {
 }
 
 /**
- * @description Mutable context shared across the middleware pipeline for a single request. The builder treats `response` and `error` as mutually exclusive terminators.
+ * @description Mutable context shared across the middleware pipeline for a single request. The client treats `response` and `error` as mutually exclusive terminators.
  * @see https://x.twis.uk/en/ohnet/reference/transport.html#ohnetcontext
  */
 export interface OhNetContext {

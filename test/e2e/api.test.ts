@@ -73,9 +73,9 @@ describe("e2e - api integration", () => {
 
     it("throws AuthExpiredError when refresh itself fails", async () => {
       storage.set({ accessToken: "stale-access", refreshToken: "stale-refresh" })
-      const builder = buildBrokenApi({ baseURL: server.url, storage })
+      const client = buildBrokenApi({ baseURL: server.url, storage })
 
-      await expect(builder.get("/auth/me")).rejects.toBeInstanceOf(AuthExpiredError)
+      await expect(client.get("/auth/me")).rejects.toBeInstanceOf(AuthExpiredError)
     })
   })
 
@@ -160,7 +160,7 @@ interface BrokenApiOptions {
 }
 
 function buildBrokenApi(opts: BrokenApiOptions): OhNetClient {
-  const refreshBuilder = OhNetClient.create({ url: opts.baseURL })
+  const refreshClient = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
 
@@ -170,15 +170,15 @@ function buildBrokenApi(opts: BrokenApiOptions): OhNetClient {
       const pair = opts.storage.get()
       if (!pair)
         throw new UnauthorizedError()
-      const session = await refreshBuilder.post<Session>("/auth/refresh-broken", { refreshToken: pair.refreshToken })
+      const session = await refreshClient.post<Session>("/auth/refresh-broken", { refreshToken: pair.refreshToken })
       return { accessToken: session.accessToken, refreshToken: session.refreshToken }
     },
     onTokens: opts.storage.set,
   })
 
-  const builder = OhNetClient.create({ url: opts.baseURL, adapter: opts.adapter })
+  const client = OhNetClient.create({ url: opts.baseURL, adapter: opts.adapter })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)
-  return builder
+  return client
 }

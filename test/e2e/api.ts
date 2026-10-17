@@ -71,7 +71,7 @@ class RawAuthHeaderMiddleware extends OhNetMiddleware {
 }
 
 export function createApi(opts: ApiOptions): Api {
-  const refreshBuilder = OhNetClient.create({ url: opts.baseURL })
+  const refreshClient = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(new RawAuthHeaderMiddleware(() => opts.storage.get()?.accessToken))
@@ -82,41 +82,41 @@ export function createApi(opts: ApiOptions): Api {
       const pair = opts.storage.get()
       if (!pair)
         throw new UnauthorizedError()
-      const session = await refreshBuilder.post<Session>("/auth/refresh", { refreshToken: pair.refreshToken })
+      const session = await refreshClient.post<Session>("/auth/refresh", { refreshToken: pair.refreshToken })
       return { accessToken: session.accessToken, refreshToken: session.refreshToken }
     },
     onTokens: opts.storage.set,
   })
 
-  const builder = OhNetClient.create({ url: opts.baseURL })
+  const client = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)
 
   return {
     auth: {
-      login: (data?: unknown) => builder.post<Session>("/auth/login", data ?? {}),
+      login: (data?: unknown) => client.post<Session>("/auth/login", data ?? {}),
       logout: (): Promise<null> => {
         opts.storage.clear()
-        return builder.post<null>("/auth/logout")
+        return client.post<null>("/auth/logout")
       },
     },
     me: {
-      get: () => builder.get<User>("/auth/me"),
+      get: () => client.get<User>("/auth/me"),
     },
     errors: {
-      notFound: () => builder.get<never>("/errors/404"),
-      validation: (data?: unknown) => builder.post<ValidationDetails>("/errors/422", data ?? {}),
+      notFound: () => client.get<never>("/errors/404"),
+      validation: (data?: unknown) => client.post<ValidationDetails>("/errors/422", data ?? {}),
     },
     content: {
-      json: () => builder.get<{ hello: string }>("/content/json"),
-      text: () => builder.get<string>("/content/text"),
-      form: () => builder.get<string>("/content/form"),
-      binary: () => builder.append("/content/binary").request<ArrayBuffer>({ responseType: "arraybuffer" }),
+      json: () => client.get<{ hello: string }>("/content/json"),
+      text: () => client.get<string>("/content/text"),
+      form: () => client.get<string>("/content/form"),
+      binary: () => client.append("/content/binary").request<ArrayBuffer>({ responseType: "arraybuffer" }),
     },
     echo: {
-      headers: () => builder.get<Record<string, string>>("/echo/headers"),
-      body: (data: unknown) => builder.post<EchoBody>("/echo/body", data),
+      headers: () => client.get<Record<string, string>>("/echo/headers"),
+      body: (data: unknown) => client.post<EchoBody>("/echo/body", data),
     },
   }
 }
