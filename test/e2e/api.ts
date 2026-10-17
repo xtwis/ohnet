@@ -1,6 +1,6 @@
 import type { OhNetAdapter, OhNetContext } from "@xtwis/ohnet"
 import type { TokenPair, TokenStorage } from "./storage"
-import { OhNetBuilder, OhNetMiddleware } from "@xtwis/ohnet"
+import { OhNetClient, OhNetMiddleware } from "@xtwis/ohnet"
 import { UnauthorizedError } from "./error"
 import { AuthMiddleware } from "./middleware/auth"
 import { BusinessErrorMiddleware } from "./middleware/business-error"
@@ -71,7 +71,7 @@ class RawAuthHeaderMiddleware extends OhNetMiddleware {
 }
 
 export function createApi(opts: ApiOptions): Api {
-  const refreshBuilder = new OhNetBuilder({ url: opts.baseURL })
+  const refreshBuilder = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(new RawAuthHeaderMiddleware(() => opts.storage.get()?.accessToken))
@@ -88,7 +88,7 @@ export function createApi(opts: ApiOptions): Api {
     onTokens: opts.storage.set,
   })
 
-  const builder = new OhNetBuilder({ url: opts.baseURL })
+  const builder = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)

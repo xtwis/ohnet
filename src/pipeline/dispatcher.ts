@@ -33,12 +33,12 @@ export async function compose(
   adapter: OhNetAdapter,
   context: OhNetContext,
   middlewares: OhNetMiddleware[],
-  emit?: (event: OhNetEventName) => void,
+  emit: (event: OhNetEventName, context: OhNetContext) => void,
 ): Promise<boolean> {
   const maxRetries = context.request.middlewareRetries ?? 1
   let retries = 0
 
-  emit?.(OHNET_EVENT.START)
+  emit(OHNET_EVENT.START, context)
 
   while (true) {
     let terminated = false
@@ -47,7 +47,7 @@ export async function compose(
     const stack: OhNetMiddleware[] = []
 
     if (retries > 0)
-      emit?.(OHNET_EVENT.RETRY)
+      emit(OHNET_EVENT.RETRY, context)
 
     for (let i = 0; i < middlewares.length; i++) {
       if (terminated || skipped || retrying)
@@ -70,7 +70,7 @@ export async function compose(
       }
     }
 
-    emit?.(OHNET_EVENT.REQUEST)
+    emit(OHNET_EVENT.REQUEST, context)
 
     if (!terminated && !skipped && !retrying) {
       await run(context, async () => {
@@ -78,7 +78,7 @@ export async function compose(
       })
     }
 
-    emit?.(OHNET_EVENT.RESPONSE)
+    emit(OHNET_EVENT.RESPONSE, context)
 
     for (let i = stack.length - 1; i >= 0; i--) {
       if (terminated || retrying)
@@ -98,12 +98,12 @@ export async function compose(
     if (!retrying) {
       const normal = !terminated && !skipped
       if (context.error)
-        emit?.(OHNET_EVENT.ERROR)
+        emit(OHNET_EVENT.ERROR, context)
       else if (context.response)
-        emit?.(OHNET_EVENT.SUCCESS)
+        emit(OHNET_EVENT.SUCCESS, context)
       else if (!normal)
-        emit?.(OHNET_EVENT.SKIP)
-      emit?.(OHNET_EVENT.FINISH)
+        emit(OHNET_EVENT.SKIP, context)
+      emit(OHNET_EVENT.FINISH, context)
       return normal
     }
 
@@ -112,8 +112,8 @@ export async function compose(
         OHNET_ERROR_CODE.RETRY_EXHAUSTED,
         OHNET_ERROR_MESSAGE.RETRY_EXHAUSTED,
       )
-      emit?.(OHNET_EVENT.ERROR)
-      emit?.(OHNET_EVENT.FINISH)
+      emit(OHNET_EVENT.ERROR, context)
+      emit(OHNET_EVENT.FINISH, context)
       return false
     }
 

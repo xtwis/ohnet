@@ -25,13 +25,13 @@ export const OHNET_EVENT = {
 } as const satisfies Record<string, string>
 
 /**
- * @description Union of valid event names accepted by {@link OhNetBuilder.on}.
+ * @description Union of valid event names accepted by {@link OhNetClient.on}.
  * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohneteventname
  */
 export type OhNetEventName = (typeof OHNET_EVENT)[keyof typeof OHNET_EVENT]
 
 /**
- * @description Signature of an event handler registered via {@link OhNetBuilder.on}.
+ * @description Signature of an event handler registered via {@link OhNetClient.on}.
  * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohneteventhandler
  */
 export type OhNetEventHandler = (adapter: OhNetAdapter, context: OhNetContext) => void
@@ -79,7 +79,7 @@ export interface OhNetMiddlewareLeaveControls {
  * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohnetmiddleware
  */
 export abstract class OhNetMiddleware {
-  /** Stable identifier used by {@link OhNetBuilder.clean} and by replacement semantics in {@link OhNetBuilder.with}. Must be a non-whitespace string. */
+  /** Stable identifier used by {@link OhNetClient.clean} and by replacement semantics in {@link OhNetClient.with}. Must be a non-whitespace string. */
   abstract readonly name: string
   /** Pre-adapter hook. Runs in registration order before any subsequent middleware's `enter` and before the adapter call. Optional. */
   enter?(adapter: OhNetAdapter, context: OhNetContext, controls: OhNetMiddlewareEnterControls): Promise<void>

@@ -2,7 +2,7 @@ import type { OhNetAdapter } from "@xtwis/ohnet"
 import type { Api, Session } from "./api"
 import type { MockServer } from "./server"
 import type { TokenStorage } from "./storage"
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { createApi } from "./api"
 import { AuthExpiredError, NotFoundError, UnauthorizedError, ValidationError } from "./error"
@@ -159,8 +159,8 @@ interface BrokenApiOptions {
   adapter?: OhNetAdapter
 }
 
-function buildBrokenApi(opts: BrokenApiOptions): OhNetBuilder {
-  const refreshBuilder = new OhNetBuilder({ url: opts.baseURL })
+function buildBrokenApi(opts: BrokenApiOptions): OhNetClient {
+  const refreshBuilder = OhNetClient.create({ url: opts.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
 
@@ -176,7 +176,7 @@ function buildBrokenApi(opts: BrokenApiOptions): OhNetBuilder {
     onTokens: opts.storage.set,
   })
 
-  const builder = new OhNetBuilder({ url: opts.baseURL, adapter: opts.adapter })
+  const builder = OhNetClient.create({ url: opts.baseURL, adapter: opts.adapter })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)
