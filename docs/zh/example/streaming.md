@@ -108,7 +108,7 @@ await client.put("/files/blob", blob)
 
 ```ts
 const controller = new AbortController()
-const client = new OhNetBuilder({ url: BASE, timeout: 5_000 })
+const client = OhNetClient.create({ url: BASE, timeout: 5_000 })
 
 const pending = client.append("/slow").request({ signal: controller.signal })
 // 在响应头到达前调用 controller.abort() -> OHNET_ABORT

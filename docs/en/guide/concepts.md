@@ -11,15 +11,15 @@ Before diving into individual APIs, this page sketches ohnet's overall architect
 
 ```mermaid
 flowchart LR
-    Builder["Builder<br/>(config)"] --> Pipeline["Pipeline<br/>(middleware + events)"]
+    Client["Client<br/>(config)"] --> Pipeline["Pipeline<br/>(middleware + events)"]
     Pipeline --> Adapter["Adapter<br/>(transport)"]
 ```
 
-- **Builder**: the entry point. Holds the URL, headers, middlewares, and event handlers. Every configuration call produces a derived instance; nothing is mutated.
+- **Client**: the entry point. Holds the URL, headers, middlewares, and event handlers. Every configuration call produces a derived instance; nothing is mutated.
 - **Pipeline**: the runtime that walks a request through middlewares and into the adapter. It emits lifecycle events and supports `skip` / `terminate` / `retry` controls.
 - **Adapter**: the single seam between ohnet and a concrete transport. Adapters match a tiny `(context) => Promise<response>` signature, so the same pipeline drives `fetch`, `axios`, gRPC, `WebSocket`, or an in-memory mock.
 
-The three parts are deliberately independent. You can replace the transport without touching middleware, add middleware without touching the builder, or write a fresh builder wrapper without touching either.
+The three parts are deliberately independent. You can replace the transport without touching middleware, add middleware without touching the client, or write a fresh client wrapper without touching either.
 
 ## How a Request Flows
 
@@ -47,6 +47,6 @@ A few things look like abstractions but are deliberately small:
 
 You have enough to read the rest. Start with whichever matters most:
 
-- [Builder](./builder.md): the surface you touch most often.
+- [Client](./client.md): the surface you touch most often.
 - [Pipeline](./pipeline.md): middleware and lifecycle events.
 - [Adapter](./adapter.md): the transport boundary and how to write your own.

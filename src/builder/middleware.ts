@@ -2,7 +2,7 @@ import type { OhNetMiddleware } from "@/pipeline/types"
 
 /**
  * @description Read-only query over a builder's middleware registry. Returned by {@link OhNetClient.middlewares} for introspection. Each call returns a fresh snapshot of the builder's current state; mutations on the query are not propagated back to the builder.
- * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohnetmiddleware
+ * @see https://x.twis.uk/en/ohnet/reference/client.html#middleware-query
  */
 export class OhNetMiddlewareQuery {
   readonly #middlewares: readonly OhNetMiddleware[]

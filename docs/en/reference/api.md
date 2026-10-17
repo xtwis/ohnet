@@ -16,7 +16,7 @@ npm install @xtwis/ohnet
 ```
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 ```
 
 ## Reading This Reference
@@ -32,7 +32,7 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 
 | Symbol              | Page                                                     |
 | ------------------- | -------------------------------------------------------- |
-| `OhNetBuilder`      | [Builder](./builder.md#ohnetbuilder)                     |
+| `OhNetClient`       | [Client](./client.md#ohnetclient)                        |
 | `OhNetMiddleware`   | [Middleware and Events](./middleware.md#ohnetmiddleware) |
 | `OhNetHeader`       | [Headers](./header.md#ohnetheader)                       |
 | `OhNetController`   | [Signals](./signal.md#ohnetcontroller)                   |
@@ -64,7 +64,7 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 | `OhNetContext`, `OhNetRequest`, `OhNetResponse`                                                         | [Adapter and Context](./transport.md)                   |
 | `OhNetResponseLike`                                                                                     | [Adapter and Context](./transport.md#ohnetresponselike) |
 | `OhNetMethod`, `OhNetParams`, `OhNetResponseType`, `OhNetResponseKind`                                  | [Adapter and Context](./transport.md)                   |
-| `OhNetConfig`, `OhNetRequestConfig`                                                                     | [Builder](./builder.md#ohnetconfig)                     |
+| `OhNetConfig`, `OhNetRequestConfig`                                                                     | [Client](./client.md#ohnetconfig)                       |
 | `OhNetMiddlewareEnterControls`, `OhNetMiddlewareLeaveControls`                                          | [Middleware and Events](./middleware.md)                |
 | `OhNetEventHandler`, `OhNetEventName`                                                                   | [Middleware and Events](./middleware.md)                |
 | `OhNetHeaderLike`, `OhNetHeaderRecord`, `OhNetHeaderEntry`, `OhNetHeaderEntries`, `OhNetHeaderIterable` | [Headers](./header.md)                                  |
@@ -73,9 +73,9 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 ## Quick Example
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
 const user = await client.get<{ id: string, name: string }>("/users/1")
 ```
 
@@ -85,7 +85,7 @@ const user = await client.get<{ id: string, name: string }>("/users/1")
 
 ## Next
 
-- [Builder](./builder.md): the entry point and its configuration.
+- [Client](./client.md): the entry point and its configuration.
 - [Middleware and Events](./middleware.md): hooks, controls, and lifecycle events.
 - [Adapter and Context](./transport.md): the transport contract and request/response types.
 - [Errors](./errors.md): classes and constants.

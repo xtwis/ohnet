@@ -5,7 +5,7 @@ order: 0
 
 hero:
   name: "@xtwis/ohnet"
-  text: 流畅, 不可变的 HTTP 客户端
+  text: 链式, 不可变的 HTTP 客户端
   tagline: 基于中间件管道, 传输无关的 HTTP 客户端, 用于构建面向业务的请求框架.
   actions:
     - theme: brand
@@ -21,7 +21,7 @@ hero:
 features:
   - title: 零运行时依赖
     details: 自带适配器或使用内置的 fetch 适配器. 包体小, 支持 tree-shaking, 无副作用.
-  - title: 流畅不可变 Builder
+  - title: 链式不可变客户端
     details: 每次配置调用都返回新实例. 可安全派生, fork, 跨请求共享, 无变更错误.
   - title: 中间件管道
     details: 声明式 enter/leave 钩子, 支持 skip, terminate, retry 控制. 可组合鉴权, 缓存, 信封解包等.

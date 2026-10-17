@@ -2,7 +2,7 @@ import type { OhNetEventHandler, OhNetEventName } from "@/pipeline/types"
 
 /**
  * @description Read-only query over a builder's event registry. Returned by {@link OhNetClient.events} for introspection. Each call returns a fresh snapshot of the builder's current state; mutations on the query are not propagated back to the builder.
- * @see https://x.twis.uk/en/ohnet/reference/middleware.html#ohneteventhandler
+ * @see https://x.twis.uk/en/ohnet/reference/client.html#event-query
  */
 export class OhNetEventQuery {
   readonly #events: ReadonlyMap<OhNetEventName, readonly OhNetEventHandler[]>

@@ -29,19 +29,19 @@ yarn add @xtwis/ohnet
 一个可用的客户端只要两行:
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
 
 const user = await client.get<{ id: string, name: string }>("/users/1")
 console.log(user.id, user.name)
 ```
 
-就这些. Builder 是流畅且不可变的: 每次配置调用都返回新实例, 因此原实例可以安全共享, 你也可以从中派生子客户端.
+就这些. 客户端是链式且不可变的: 每次配置调用都返回新实例, 因此原实例可以安全共享, 你也可以从中派生子客户端.
 
 ## 刚刚发生了什么
 
-- `new OhNetBuilder({ url })` 创建了一个根 URL 为 `https://api.example.com` 的客户端.
+- `OhNetClient.create({ url })` 创建了一个根 URL 为 `https://api.example.com` 的客户端.
 - `client.get<T>(path)` 对拼接后的 URL 发出 HTTP `GET` 请求.
 - `<T>` 是 `response.data` 的期望类型. ohnet 会把类型向下游传递.
 - 如果没有传 `adapter`, ohnet 使用内置的 fetch 适配器, 适用于任何暴露标准 `fetch` 全局的运行时.
@@ -52,7 +52,7 @@ console.log(user.id, user.name)
 
 ```ts
 import type { OhNetContext } from "@xtwis/ohnet"
-import { OhNetBuilder, OhNetMiddleware } from "@xtwis/ohnet"
+import { OhNetClient, OhNetMiddleware } from "@xtwis/ohnet"
 
 class TimingMiddleware extends OhNetMiddleware {
   readonly name = "timing"
@@ -67,7 +67,7 @@ class TimingMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
   .with(new TimingMiddleware())
 
 await client.get("/users/1") // logs "elapsed: 87ms"
@@ -77,5 +77,5 @@ await client.get("/users/1") // logs "elapsed: 87ms"
 
 ## 下一步
 
-- 阅读 [核心概念](./concepts.md) 了解高层心智模型: Builder, Pipeline, Adapter.
+- 阅读 [核心概念](./concepts.md) 了解高层心智模型: 客户端, 管线, 适配器.
 - 通过侧边栏浏览指南的其余部分, 或跳转到 [API 参考](../reference/api.md).

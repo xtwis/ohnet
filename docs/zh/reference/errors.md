@@ -97,6 +97,6 @@ const OHNET_UNKNOWN_ERROR_MESSAGE = "ohnet: unknown error"
 
 ## 下一步
 
-- [Builder](./builder.md): `request<T>()` 抛出这些错误.
+- [客户端](./client.md): `request<T>()` 抛出这些错误.
 - [中间件与事件](./middleware.md): 产生内部 code 的控制流.
 - [适配器与上下文](./transport.md): 适配器抛出 `OhNetAdapterError`.

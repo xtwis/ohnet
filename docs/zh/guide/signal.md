@@ -89,9 +89,9 @@ catch (error) {
 
 ```mermaid
 flowchart LR
-    User["user signal<br/>(来自 request)"] --> Bridge
-    Timer["timeout timer<br/>(来自 request)"] --> Bridge
-    Bridge["internal AbortController"] --> Fetch["fetch(...)"]
+    User["用户 signal<br/>(来自 request)"] --> Bridge
+    Timer["超时计时器<br/>(来自 request)"] --> Bridge
+    Bridge["内部 AbortController"] --> Fetch["fetch(...)"]
 
     Bridge -. "由用户触发" .-> Err1["OHNET_ABORT"]
     Bridge -. "由 timer 触发" .-> Err2["OHNET_TIMEOUT"]
@@ -126,7 +126,7 @@ sequenceDiagram
 
 - 中途 abort 不计入 `request.middlewareRetries`. 计数器只跟踪中间件驱动的重试.
 - 中间件仍可能在已 abort 的请求上调用 `controls.retry()`. 调度器会跑下一次尝试, 但同一个信号仍处于 aborted, 下一次尝试立刻以 `OHNET_ABORT` 失败. 想让重试有机会成功, 用一个新信号 (或新 `AbortController`).
-- `OHNET_ABORT` 是终态: 它出现在 `context.error` 上并由 builder 重抛, 不会被包成 `OHNET_UNKNOWN`.
+- `OHNET_ABORT` 是终态: 它出现在 `context.error` 上并由客户端重抛, 不会被包成 `OHNET_UNKNOWN`.
 
 ## 编写处理信号的适配器
 

@@ -22,7 +22,7 @@ client.head<T>(path, data)
 client.options<T>(path, data)
 ```
 
-第一个参数永远是被拼接到当前 Builder URL 的**路径片段** (不会自动加分隔符, 你自己加前导 `/`). `data` 是请求体, 原样转发给适配器.
+第一个参数永远是被拼接到当前客户端 URL 的**路径片段** (不会自动加分隔符, 你自己加前导 `/`). `data` 是请求体, 原样转发给适配器.
 
 便捷方法的存在是为了对称和可读. 真正的能力在 `request<T>(config)`:
 
@@ -87,13 +87,13 @@ client.get("/items", qs) // produces: ?z=1&a=2
 
 ## 每请求覆盖
 
-覆盖 Builder 默认时, 三个字段最常用:
+覆盖客户端默认时, 三个字段最常用:
 
 | Field               | Purpose                                            |
 | ------------------- | -------------------------------------------------- |
-| `timeout`           | 每请求超时 (毫秒), 优先级高于 Builder 的 `timeout` |
+| `timeout`           | 每请求超时 (毫秒), 优先级高于客户端的 `timeout`    |
 | `signal`            | 外部 `AbortSignal`; 完成前中断会产生 `OHNET_ABORT` |
-| `middlewareRetries` | 每请求的重试上限, 覆盖 Builder 默认                |
+| `middlewareRetries` | 每请求的重试上限, 覆盖客户端默认                   |
 
 ```ts
 const controller = new AbortController()

@@ -5,7 +5,7 @@ order: 6
 
 # {{ $frontmatter.title }}
 
-An adapter is the only place ohnet touches the network. Everything else - builder, middleware, events, retries - works against the same contract, so swapping the transport never changes the rest of the stack.
+An adapter is the only place ohnet touches the network. Everything else - client, middleware, events, retries - works against the same contract, so swapping the transport never changes the rest of the stack.
 
 ## The Contract
 
@@ -54,7 +54,7 @@ const memoryAdapter: OhNetAdapter = async (context) => {
   return createResponse({ status: method === "POST" ? 201 : 200, headers: {}, url, data })
 }
 
-const client = new OhNetBuilder({ url: "memory://todos", adapter: memoryAdapter })
+const client = OhNetClient.create({ url: "memory://todos", adapter: memoryAdapter })
 ```
 
 Because the adapter never rejects, no middleware needs to special-case it. Cancellation and timeout are irrelevant for a synchronous store.
@@ -99,7 +99,7 @@ async function axiosAdapter(context: OhNetContext): Promise<OhNetResponse> {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: axiosAdapter,
 })

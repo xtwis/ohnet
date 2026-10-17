@@ -21,7 +21,7 @@ hero:
 features:
   - title: Zero Runtime Dependencies
     details: Bring your own adapter or use the built-in fetch adapter. Tiny bundle, tree-shakable, sideEffects-free.
-  - title: Fluent Immutable Builder
+  - title: Fluent Immutable Client
     details: Every configuration call returns a new instance. Safe to derive, fork, and share across requests without mutation bugs.
   - title: Middleware Pipeline
     details: Declarative enter/leave hooks with skip, terminate, and retry controls. Compose auth, caching, envelope unwrapping, and more.

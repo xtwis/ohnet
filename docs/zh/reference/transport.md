@@ -179,6 +179,6 @@ buildQueryString("?raw=1") // "raw=1"
 
 ## 下一步
 
-- [Builder](./builder.md): 请求如何被组装.
+- [客户端](./client.md): 请求如何被组装.
 - [中间件与事件](./middleware.md): 适配器周围运行什么.
 - [Headers](./header.md): 请求与响应使用的 `OhNetHeader` 集合.

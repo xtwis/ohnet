@@ -97,6 +97,6 @@ The wrapped error carries the original value on `error.error`, and both `type` a
 
 ## Next
 
-- [Builder](./builder.md): `request<T>()` throws these.
+- [Client](./client.md): `request<T>()` throws these.
 - [Middleware and Events](./middleware.md): control flow that produces internal codes.
 - [Adapter and Context](./transport.md): adapters throw `OhNetAdapterError`.

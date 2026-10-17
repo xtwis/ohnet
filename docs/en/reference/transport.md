@@ -179,6 +179,6 @@ buildQueryString("?raw=1") // "raw=1"
 
 ## Next
 
-- [Builder](./builder.md): how a request is assembled.
+- [Client](./client.md): how a request is assembled.
 - [Middleware and Events](./middleware.md): what runs around the adapter.
 - [Headers](./header.md): the `OhNetHeader` collection used by requests and responses.

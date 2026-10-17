@@ -44,14 +44,14 @@ function mockAdapter(routes: Record<string, Route>): OhNetAdapter {
 A test is then just a client plus a route table:
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 import { describe, expect, it } from "vitest"
 
 const BASE = "https://api.example.com"
 
 describe("user api", () => {
   it("returns the payload", async () => {
-    const client = new OhNetBuilder({
+    const client = OhNetClient.create({
       url: BASE,
       adapter: mockAdapter({
         [`GET ${BASE}/users/1`]: { data: { id: "1", name: "Ada" } },
@@ -93,7 +93,7 @@ Header names are lowercased by `OhNetHeader`, so compare against lowercase keys:
 ```ts
 it("attaches the bearer token", async () => {
   const calls: CapturedRequest[] = []
-  const client = new OhNetBuilder({
+  const client = OhNetClient.create({
     url: BASE,
     adapter: capturingAdapter(mockAdapter({ [`GET ${BASE}/me`]: { data: null } }), calls),
   }).with(new TokenMiddleware(() => "secret"))
@@ -117,7 +117,7 @@ function failingAdapter(code: string): OhNetAdapter {
 }
 
 it("surfaces a network failure", async () => {
-  const client = new OhNetBuilder({
+  const client = OhNetClient.create({
     url: BASE,
     adapter: failingAdapter(OHNET_ADAPTER_ERROR_CODE.NETWORK),
   })
@@ -157,7 +157,7 @@ it("retries until the third attempt succeeds", async () => {
     return createResponse({ status: 200, headers: {}, url: context.request.url, data: "ok" })
   }
 
-  const client = new OhNetBuilder({ url: BASE, adapter, middlewareRetries: 3 })
+  const client = OhNetClient.create({ url: BASE, adapter, middlewareRetries: 3 })
     .with(new RetryOnNetworkMiddleware())
 
   await expect(client.get("/flaky")).resolves.toBe("ok")
@@ -169,7 +169,7 @@ Lower `middlewareRetries` to assert exhaustion instead:
 
 ```ts
 it("fails once the retry budget is spent", async () => {
-  const client = new OhNetBuilder({
+  const client = OhNetClient.create({
     url: BASE,
     adapter: failingAdapter(OHNET_ADAPTER_ERROR_CODE.NETWORK),
     middlewareRetries: 1,
@@ -204,7 +204,7 @@ const slowAdapter: OhNetAdapter = (context) => {
 
 it("rejects with OHNET_ABORT", async () => {
   const controller = new AbortController()
-  const client = new OhNetBuilder({ url: BASE, adapter: slowAdapter })
+  const client = OhNetClient.create({ url: BASE, adapter: slowAdapter })
 
   const pending = client.append("/slow").request({ signal: controller.signal })
   controller.abort()
@@ -222,7 +222,7 @@ import { OHNET_EVENT } from "@xtwis/ohnet"
 
 it("emits lifecycle events in order", async () => {
   const seen: string[] = []
-  const client = new OhNetBuilder({
+  const client = OhNetClient.create({
     url: BASE,
     adapter: mockAdapter({ [`GET ${BASE}/items`]: { data: [] } }),
   })

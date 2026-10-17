@@ -108,7 +108,7 @@ For the header phase the usual rules apply:
 
 ```ts
 const controller = new AbortController()
-const client = new OhNetBuilder({ url: BASE, timeout: 5_000 })
+const client = OhNetClient.create({ url: BASE, timeout: 5_000 })
 
 const pending = client.append("/slow").request({ signal: controller.signal })
 // controller.abort() before the headers arrive -> OHNET_ABORT

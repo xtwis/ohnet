@@ -24,12 +24,12 @@ Per attempt the order is `REQUEST`, adapter, `RESPONSE`, leave hooks, then exact
 
 ## Subscribing
 
-Register handlers with `.on`; each event can have many, and they run in registration order. Every builder method returns a new instance, so assign the result.
+Register handlers with `.on`; each event can have many, and they run in registration order. Every client method returns a new instance, so assign the result.
 
 ```ts
-import { OHNET_EVENT, OhNetBuilder } from "@xtwis/ohnet"
+import { OHNET_EVENT, OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .on(OHNET_EVENT.START, (_, ctx) => console.log("start", ctx.request.url))
   .on(OHNET_EVENT.SUCCESS, (_, ctx) => console.log("ok", ctx.response?.status))
   .on(OHNET_EVENT.ERROR, (_, ctx) => console.error("fail", ctx.error?.code))
@@ -73,7 +73,7 @@ function fields(context: OhNetContext): Record<string, unknown> {
   }
 }
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new ContextMiddleware())
   .on(OHNET_EVENT.SUCCESS, (_, ctx) => log("info", "request ok", {
     ...fields(ctx),
@@ -100,7 +100,7 @@ const metrics = {
   durations: [] as number[],
 }
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new ContextMiddleware())
   .on(OHNET_EVENT.REQUEST, () => { metrics.requests += 1 })
   .on(OHNET_EVENT.SUCCESS, () => { metrics.successes += 1 })
@@ -122,7 +122,7 @@ Because `requests` is incremented on `REQUEST`, a request that is skipped in `en
 ```ts
 let retries = 0
 
-const client = new OhNetBuilder({ url: BASE, middlewareRetries: 3 })
+const client = OhNetClient.create({ url: BASE, middlewareRetries: 3 })
   .on(OHNET_EVENT.RETRY, (_, ctx) => {
     retries += 1
     log("warn", "retrying", { url: ctx.request.url, attempt: retries })

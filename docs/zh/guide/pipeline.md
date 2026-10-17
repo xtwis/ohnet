@@ -33,7 +33,7 @@ class TimingMiddleware extends OhNetMiddleware {
 
 ```mermaid
 flowchart LR
-    Enter["enter<br/>registered order"] --> Adapter["adapter"] --> Leave["leave<br/>reverse order"]
+    Enter["进入<br/>注册顺序"] --> Adapter["适配器"] --> Leave["离开<br/>逆序"]
 ```
 
 `enter` 钩子在适配器调用前按注册顺序执行. `leave` 钩子在适配器返回后按**相反**的注册顺序执行. 这一对组合跟 Koa / 洋葱中间件同形: 每个中间件的 `leave` 看到的是后续中间件已经写入过的上下文.
@@ -44,25 +44,25 @@ flowchart LR
 
 `name` 不能为空. 空白字符串会在生效前被 `OHNET_MIDDLEWARE_NAME` 拒绝.
 
-## Controls
+## 控件
 
 每个钩子收到一个 `controls` 对象:
 
-| Method                 | Phase          | Effect                                                                                          |
+| 方法                   | 阶段           | 效果                                                                                            |
 | ---------------------- | -------------- | ----------------------------------------------------------------------------------------------- |
 | `controls.skip()`      | enter          | 适配器不执行, 除非 `context.response` 已写入 (此时 `SUCCESS` 优先), 否则以 `OHNET_SKIPPED` 结束 |
 | `controls.terminate()` | enter 或 leave | 后续 `enter` (或 `leave`) 钩子不再执行                                                          |
 | `controls.retry()`     | enter 或 leave | 重新跑整条管线, 上限为 `request.middlewareRetries`                                              |
 
-### Controls in the Pipeline
+### 控件在管线中
 
 ```mermaid
 flowchart TD
-    E1[M1.enter] --> E2[M2.enter] --> E3[M3.enter] --> A[adapter]
-    A --> L3[M3.leave] --> L2[M2.leave] --> L1[M1.leave]
+    E1[M1 进入] --> E2[M2 进入] --> E3[M3 进入] --> A[适配器]
+    A --> L3[M3 离开] --> L2[M2 离开] --> L1[M1 离开]
 
-    Done1(["done"])
-    Done2(["done"])
+    Done1(["完成"])
+    Done2(["完成"])
 
     E2 -.->|"skip()"| L2
     E2 -.->|"terminate()"| Done1
@@ -94,7 +94,7 @@ class NetworkRetryMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   middlewareRetries: 3,
 }).with(new NetworkRetryMiddleware())
@@ -107,7 +107,7 @@ const client = new OhNetBuilder({
 ```ts
 import { OHNET_EVENT } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .on(OHNET_EVENT.START, (_, ctx) => trace.begin(ctx.request.url))
   .on(OHNET_EVENT.SUCCESS, (_, ctx) => trace.end(ctx.response?.status))
   .on(OHNET_EVENT.ERROR, (_, ctx) => trace.fail(ctx.error))
@@ -158,6 +158,6 @@ sequenceDiagram
 
 ## 下一步
 
-- [Adapter](./adapter.md): 传输层边界, 以及如何编写自己的适配器.
+- [适配器](./adapter.md): 传输层边界, 以及如何编写自己的适配器.
 - [错误处理](./errors.md): 你可以基于其分支的三层错误类.
-- [HTTP Requests](./http.md): `responseType`, `params`, 以及每请求选项.
+- [HTTP 请求](./http.md): `responseType`, `params`, 以及每请求选项.

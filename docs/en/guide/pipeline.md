@@ -94,7 +94,7 @@ class NetworkRetryMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   middlewareRetries: 3,
 }).with(new NetworkRetryMiddleware())
@@ -107,7 +107,7 @@ Register handlers against any of the 8 events using the `OHNET_EVENT` constants:
 ```ts
 import { OHNET_EVENT } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .on(OHNET_EVENT.START, (_, ctx) => trace.begin(ctx.request.url))
   .on(OHNET_EVENT.SUCCESS, (_, ctx) => trace.end(ctx.response?.status))
   .on(OHNET_EVENT.ERROR, (_, ctx) => trace.fail(ctx.error))

@@ -5,7 +5,7 @@ order: 6
 
 # {{ $frontmatter.title }}
 
-适配器是 ohnet 唯一触碰网络的地方. 其他一切 - builder, 中间件, 事件, 重试 - 都针对同一份契约工作, 因此替换传输层永远不会改变栈的其余部分.
+适配器是 ohnet 唯一触碰网络的地方. 其他一切 - client, 中间件, 事件, 重试 - 都针对同一份契约工作, 因此替换传输层永远不会改变栈的其余部分.
 
 ## 契约
 
@@ -54,7 +54,7 @@ const memoryAdapter: OhNetAdapter = async (context) => {
   return createResponse({ status: method === "POST" ? 201 : 200, headers: {}, url, data })
 }
 
-const client = new OhNetBuilder({ url: "memory://todos", adapter: memoryAdapter })
+const client = OhNetClient.create({ url: "memory://todos", adapter: memoryAdapter })
 ```
 
 因为适配器从不 reject, 没有中间件需要为它特判. 对同步存储而言, 取消和超时都无关紧要.
@@ -99,7 +99,7 @@ async function axiosAdapter(context: OhNetContext): Promise<OhNetResponse> {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: axiosAdapter,
 })

@@ -1,18 +1,18 @@
 ---
-title: Builder
+title: 客户端
 order: 3
 ---
 
 # {{ $frontmatter.title }}
 
-`OhNetBuilder` 是 ohnet 的唯一入口. 每个配置方法都是流畅且不可变的: 每次调用都返回新实例, 而非修改原实例. 这让 Builder 可以安全共享, 派生, 跨请求复用.
+`OhNetClient` 是 ohnet 的唯一入口. 每个配置方法都是链式且不可变的: 每次调用都返回新实例, 而非修改原实例. 这让 Client 可以安全共享, 派生, 跨请求复用.
 
-## 创建 Builder
+## 创建客户端
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   // 可选:
   // adapter: myAdapter,             // 默认: 内置 fetch 适配器
@@ -22,25 +22,25 @@ const client = new OhNetBuilder({
 })
 ```
 
-唯一必填字段是 `url`. 通过 `adapter` 替换传输层, 见 [Adapter](./adapter.md).
+唯一必填字段是 `url`. 通过 `adapter` 字段替换传输层, 见 [适配器](./adapter.md).
 
 ## 配置方法
 
-每个方法都返回新的 `OhNetBuilder`:
+每个方法都返回新的 `OhNetClient`:
 
-| Method                | Returns        | Purpose                    |
-| --------------------- | -------------- | -------------------------- |
-| `fork(config?)`       | `OhNetBuilder` | 派生子 Builder, 可选覆盖   |
-| `add(config)`         | `OhNetBuilder` | `fork` 的别名, 必传 config |
-| `with(middleware)`    | `OhNetBuilder` | 按 `name` 注册或替换中间件 |
-| `clean(name)`         | `OhNetBuilder` | 按 `name` 移除中间件       |
-| `on(event, handler)`  | `OhNetBuilder` | 注册事件处理器             |
-| `off(event, handler)` | `OhNetBuilder` | 按引用移除事件处理器       |
-| `append(path)`        | `OhNetBuilder` | 将 `path` 拼接到当前 URL   |
+| Method                | Returns       | Purpose                    |
+| --------------------- | ------------- | -------------------------- |
+| `fork(config?)`       | `OhNetClient` | 派生子客户端, 可选覆盖     |
+| `add(config)`         | `OhNetClient` | `fork` 的别名, 必传 config |
+| `with(middleware)`    | `OhNetClient` | 按 `name` 注册或替换中间件 |
+| `clean(name)`         | `OhNetClient` | 按 `name` 移除中间件       |
+| `on(event, handler)`  | `OhNetClient` | 注册事件处理器             |
+| `off(event, handler)` | `OhNetClient` | 按引用移除事件处理器       |
+| `append(path)`        | `OhNetClient` | 将 `path` 拼接到当前 URL   |
 
 ### 派生子客户端
 
-`fork()` 和 `add()` 生成的子 Builder 共享父 Builder 的中间件, 事件, 适配器, 然后应用你传入的覆盖. 关键是, 子 Builder 的 `meta` 会被重置为 `{}`, 中间件之间的状态不会跨请求泄漏:
+`fork()` 和 `add()` 生成的子客户端 共享父客户端 的中间件, 事件, 适配器, 然后应用你传入的覆盖. 关键是, 子客户端 的 `meta` 会被重置为 `{}`, 中间件之间的状态不会跨请求泄漏:
 
 ```ts
 const v1 = client.fork({ headers: { "x-version": "1" } })
@@ -58,7 +58,7 @@ await client.get("/items") // 无 x-version
 `append(path)` 把 `path` 拼接到当前 URL. **不会自动加分隔符**: 自己加上前导 `/`:
 
 ```ts
-const api = new OhNetBuilder({ url: "https://api.example.com" })
+const api = OhNetClient.create({ url: "https://api.example.com" })
 const v1 = api.append("/v1")
 const items = v1.append("/items") // produces: https://api.example.com/v1/items
 ```
@@ -75,7 +75,9 @@ const b = a.with(new OtherTimingMiddleware("timing")) // 替换 "timing"
 const c = b.clean("timing") // 回到无 timing
 ```
 
-通过 `builder.middleware.list()` 查看已注册列表.
+通过 `client.middlewares().list()` 查看已注册列表.
+
+完整方法签名与查询 API (`middlewares()` / `events()`) 见 [Client reference](../reference/client.md).
 
 ## HTTP 动词
 
@@ -108,16 +110,16 @@ await client.append("/items").request<MyResponse>({
 })
 ```
 
-`params`, `responseType`, 每请求覆盖的细节见 [HTTP Requests](./http.md).
+关于 `params`, `responseType` 与每请求覆盖的详情, 见 [HTTP 请求](./http.md).
 
 ## 组合使用
 
 典型的链式调用自上而下: 基础 URL, 然后中间件, 然后事件, 然后动词:
 
 ```ts
-import { OHNET_EVENT, OhNetBuilder } from "@xtwis/ohnet"
+import { OHNET_EVENT, OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new AuthMiddleware(/* getToken, refresh, onToken */))
   .with(new UnpackMiddleware())
   .with(new TimingMiddleware())
@@ -126,9 +128,9 @@ const client = new OhNetBuilder({ url: BASE })
 await client.post("/login", { user, pass })
 ```
 
-因为每个方法都返回新的 Builder, 你可以保留原实例用于复用, 任何时候需要一次性变体时 `fork` 即可.
+因为每个方法都返回新的客户端, 你可以保留原实例用于复用, 任何时候需要一次性变体时 `fork` 即可.
 
 ## 下一步
 
-- [Pipeline](./pipeline.md): 中间件 enter/leave 钩子和生命周期事件.
-- [Adapter](./adapter.md): 何时以及如何编写自定义适配器.
+- [管线](./pipeline.md): 中间件 enter/leave 钩子和生命周期事件.
+- [适配器](./adapter.md): 何时以及如何编写自定义适配器.

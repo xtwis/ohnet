@@ -26,10 +26,10 @@ The goal: callers only ever see `data`, and failures arrive as typed errors.
 
 ```mermaid
 flowchart LR
-    Facade["createApi() facade"] --> Builder["OhNetBuilder"]
-    Builder --> BE["business-error"]
-    Builder --> UP["unpack"]
-    Builder --> AU["auth"]
+    Facade["createApi() facade"] --> Client["OhNetClient"]
+    Client --> BE["business-error"]
+    Client --> UP["unpack"]
+    Client --> AU["auth"]
     AU --> Adapter["fetchAdapter"]
 ```
 
@@ -167,7 +167,7 @@ catch (error) {
 The auth middleware injects the token on the way in and refreshes on the way out. `401` is a retry signal, not a user-facing failure.
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
 interface AuthOptions {
   getToken: () => string | undefined
@@ -258,7 +258,7 @@ export function createApi(options: {
   storage: TokenStorage
 }): Api {
   // No auth middleware here: this client is what refreshes the token.
-  const refreshClient = new OhNetBuilder({ url: options.baseURL })
+  const refreshClient = OhNetClient.create({ url: options.baseURL })
     .with(new UnpackMiddleware())
     .with(new BusinessErrorMiddleware())
 
@@ -273,7 +273,7 @@ export function createApi(options: {
     onTokens: session => options.storage.set(session),
   })
 
-  const client = new OhNetBuilder({ url: options.baseURL })
+  const client = OhNetClient.create({ url: options.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)

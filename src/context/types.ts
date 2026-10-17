@@ -56,7 +56,7 @@ export interface OhNetResponseLike<T = unknown> {
 }
 
 /**
- * @description Top-level configuration passed to `new OhNetClient(config)`. When `adapter` is omitted, the built-in `fetchAdapter` is used.
+ * @description Top-level configuration passed to `OhNetClient.create(config)`. When `adapter` is omitted, the built-in `fetchAdapter` is used.
  * @see https://x.twis.uk/en/ohnet/reference/builder.html#ohnetconfig
  */
 export interface OhNetConfig extends OhNetRequestConfig {

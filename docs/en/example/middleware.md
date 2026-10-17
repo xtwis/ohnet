@@ -93,7 +93,7 @@ class BackoffRetryMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   middlewareRetries: 3,
 }).with(new BackoffRetryMiddleware())
@@ -253,7 +253,7 @@ For refresh-on-401, pair this with a `leave` hook that calls `controls.retry()`.
 Register in the order you want `enter` to run, then read `leave` backwards:
 
 ```ts
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new RequestIdMiddleware()) // enter 1st, leave last
   .with(new TokenMiddleware(getToken))
   .with(new BackoffRetryMiddleware())

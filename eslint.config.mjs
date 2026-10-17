@@ -9,4 +9,9 @@ export default antfu({
   formatters: {
     markdown: true,
   },
+}, {
+  files: ["**/*.md"],
+  rules: {
+    "markdown/no-missing-link-fragments": "off",
+  },
 })

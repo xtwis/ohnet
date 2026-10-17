@@ -26,10 +26,10 @@ order: 1
 
 ```mermaid
 flowchart LR
-    Facade["createApi() facade"] --> Builder["OhNetBuilder"]
-    Builder --> BE["business-error"]
-    Builder --> UP["unpack"]
-    Builder --> AU["auth"]
+    Facade["createApi() 外观"] --> Client["OhNetClient"]
+    Client --> BE["business-error"]
+    Client --> UP["unpack"]
+    Client --> AU["auth"]
     AU --> Adapter["fetchAdapter"]
 ```
 
@@ -167,7 +167,7 @@ catch (error) {
 auth 中间件在进入时注入 token, 在返回时刷新. `401` 是重试信号, 不是面向用户的失败.
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
 interface AuthOptions {
   getToken: () => string | undefined
@@ -258,7 +258,7 @@ export function createApi(options: {
   storage: TokenStorage
 }): Api {
   // 这里不挂 auth 中间件: 这个客户端负责刷新 token.
-  const refreshClient = new OhNetBuilder({ url: options.baseURL })
+  const refreshClient = OhNetClient.create({ url: options.baseURL })
     .with(new UnpackMiddleware())
     .with(new BusinessErrorMiddleware())
 
@@ -273,7 +273,7 @@ export function createApi(options: {
     onTokens: session => options.storage.set(session),
   })
 
-  const client = new OhNetBuilder({ url: options.baseURL })
+  const client = OhNetClient.create({ url: options.baseURL })
     .with(new BusinessErrorMiddleware())
     .with(new UnpackMiddleware())
     .with(auth)

@@ -29,19 +29,19 @@ yarn add @xtwis/ohnet
 A working client is two lines:
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
 
 const user = await client.get<{ id: string, name: string }>("/users/1")
 console.log(user.id, user.name)
 ```
 
-That's it. The builder is fluent and immutable: every configuration call returns a new instance, so the original is safe to share and you can derive children from it.
+That's it. The client is fluent and immutable: every configuration call returns a new instance, so the original is safe to share and you can derive children from it.
 
 ## What Just Happened?
 
-- `new OhNetBuilder({ url })` creates a client rooted at `https://api.example.com`.
+- `OhNetClient.create({ url })` creates a client rooted at `https://api.example.com`.
 - `client.get<T>(path)` issues an HTTP `GET` against the joined URL.
 - `<T>` is the expected shape of `response.data`. ohnet propagates the type everywhere downstream.
 - Without an `adapter`, ohnet uses a built-in fetch-based adapter, fine for any runtime that exposes a standard `fetch` global.
@@ -52,7 +52,7 @@ Middlewares are the main extension point. Subclass `OhNetMiddleware` and registe
 
 ```ts
 import type { OhNetContext } from "@xtwis/ohnet"
-import { OhNetBuilder, OhNetMiddleware } from "@xtwis/ohnet"
+import { OhNetClient, OhNetMiddleware } from "@xtwis/ohnet"
 
 class TimingMiddleware extends OhNetMiddleware {
   readonly name = "timing"
@@ -67,7 +67,7 @@ class TimingMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
   .with(new TimingMiddleware())
 
 await client.get("/users/1") // logs "elapsed: 87ms"
@@ -77,5 +77,5 @@ await client.get("/users/1") // logs "elapsed: 87ms"
 
 ## Next Steps
 
-- Read [Concepts](./concepts.md) for the high-level mental model: Builder, Pipeline, Adapter.
+- Read [Concepts](./concepts.md) for the high-level mental model: Client, Pipeline, Adapter.
 - Browse the rest of the guide from the sidebar, or jump to [API Reference](../reference/api.md).

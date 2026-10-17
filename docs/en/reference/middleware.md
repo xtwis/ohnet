@@ -5,7 +5,7 @@ order: 2
 
 # {{ $frontmatter.title }}
 
-Middleware hooks run around the adapter; lifecycle events observe the pipeline. Both are registered on the builder.
+Middleware hooks run around the adapter; lifecycle events observe the pipeline. Both are registered on the client.
 
 ## OhNetMiddleware
 
@@ -92,10 +92,10 @@ Union of the eight event name strings.
 type OhNetEventHandler = (adapter: OhNetAdapter, context: OhNetContext) => void
 ```
 
-Registered with `builder.on`. Handlers run in registration order. `adapter` is `null` when the pipeline was short-circuited before the transport ran. Handler exceptions are caught and discarded, so they never affect the outcome.
+Registered with `client.on`. Handlers run in registration order. `adapter` is `null` when the pipeline was short-circuited before the transport ran. Handler exceptions are caught and discarded, so they never affect the outcome.
 
 ## Next
 
-- [Builder](./builder.md): where middlewares and handlers are registered.
+- [Client](./client.md): where middlewares and handlers are registered.
 - [Adapter and Context](./transport.md): the `context` hooks receive.
 - [Errors](./errors.md): codes produced by the control flow.

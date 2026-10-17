@@ -126,7 +126,7 @@ What this means in practice:
 
 - Aborting mid-request never counts against `request.middlewareRetries`. The counter only tracks middleware-driven retries.
 - A middleware may still call `controls.retry()` on an aborted request. The dispatcher will run the next attempt, but the same signal is still aborted and the next attempt will fail with `OHNET_ABORT` immediately. Use a fresh signal (or a fresh `AbortController`) for the retry to have any chance.
-- `OHNET_ABORT` is terminal: it appears on `context.error` and is rethrown by the builder, never wrapped in `OHNET_UNKNOWN`.
+- `OHNET_ABORT` is terminal: it appears on `context.error` and is rethrown by the client, never wrapped in `OHNET_UNKNOWN`.
 
 ## Writing Adapters That Handle Signals
 

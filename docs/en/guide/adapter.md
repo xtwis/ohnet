@@ -5,7 +5,7 @@ order: 5
 
 # {{ $frontmatter.title }}
 
-The adapter is the transport boundary: the single point where ohnet hands control to a concrete HTTP implementation. Everything else (builder, middleware, events) is transport-agnostic and works against any function matching the `OhNetAdapter` signature.
+The adapter is the transport boundary: the single point where ohnet hands control to a concrete HTTP implementation. Everything else (client, middleware, events) is transport-agnostic and works against any function matching the `OhNetAdapter` signature.
 
 ## The Contract
 
@@ -29,9 +29,9 @@ A minimal `fetch`-based adapter ships with the library and is used when no `adap
 To swap it:
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: myAdapter,
 })
@@ -58,7 +58,7 @@ import {
   OHNET_ADAPTER_ERROR_CODE,
   OHNET_ADAPTER_ERROR_MESSAGE,
   OhNetAdapterError,
-  OhNetBuilder,
+  OhNetClient,
   OhNetHeader,
 } from "@xtwis/ohnet"
 
@@ -116,7 +116,7 @@ const xhrAdapter: OhNetAdapter = (context) => {
   })
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: xhrAdapter,
 })

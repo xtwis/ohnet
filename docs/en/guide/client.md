@@ -1,18 +1,18 @@
 ---
-title: Builder
+title: Client
 order: 3
 ---
 
 # {{ $frontmatter.title }}
 
-`OhNetBuilder` is the single entry point of ohnet. Every configuration method is fluent and immutable: each call returns a new instance instead of mutating the receiver. That makes builders safe to share, derive, and reuse across requests.
+`OhNetClient` is the single entry point of ohnet. Every configuration method is fluent and immutable: each call returns a new instance instead of mutating the receiver. That makes clients safe to share, derive, and reuse across requests.
 
-## Creating a Builder
+## Creating a Client
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   // optional:
   // adapter: myAdapter,             // default: built-in fetch adapter
@@ -26,21 +26,21 @@ The only required field is `url`. Pass `adapter` to swap the transport; see [Ada
 
 ## Configuration Methods
 
-Every method returns a new `OhNetBuilder`:
+Every method returns a new `OhNetClient`:
 
-| Method                | Returns        | Purpose                                    |
-| --------------------- | -------------- | ------------------------------------------ |
-| `fork(config?)`       | `OhNetBuilder` | Derive a child with optional overrides     |
-| `add(config)`         | `OhNetBuilder` | Alias of `fork` requiring a config         |
-| `with(middleware)`    | `OhNetBuilder` | Register or replace a middleware by `name` |
-| `clean(name)`         | `OhNetBuilder` | Remove a middleware by `name`              |
-| `on(event, handler)`  | `OhNetBuilder` | Register an event handler                  |
-| `off(event, handler)` | `OhNetBuilder` | Remove an event handler (by reference)     |
-| `append(path)`        | `OhNetBuilder` | Concatenate `path` onto the current URL    |
+| Method                | Returns       | Purpose                                    |
+| --------------------- | ------------- | ------------------------------------------ |
+| `fork(config?)`       | `OhNetClient` | Derive a child with optional overrides     |
+| `add(config)`         | `OhNetClient` | Alias of `fork` requiring a config         |
+| `with(middleware)`    | `OhNetClient` | Register or replace a middleware by `name` |
+| `clean(name)`         | `OhNetClient` | Remove a middleware by `name`              |
+| `on(event, handler)`  | `OhNetClient` | Register an event handler                  |
+| `off(event, handler)` | `OhNetClient` | Remove an event handler (by reference)     |
+| `append(path)`        | `OhNetClient` | Concatenate `path` onto the current URL    |
 
 ### Deriving Children
 
-`fork()` and `add()` produce a child builder that shares the parent's middlewares, events, and adapter, then applies the overrides you pass. Crucially, the child's `meta` map is reset to `{}`, so middleware-to-middleware state never leaks between requests:
+`fork()` and `add()` produce a child client that shares the parent's middlewares, events, and adapter, then applies the overrides you pass. Crucially, the child's `meta` map is reset to `{}`, so middleware-to-middleware state never leaks between requests:
 
 ```ts
 const v1 = client.fork({ headers: { "x-version": "1" } })
@@ -58,7 +58,7 @@ Use this pattern to spin up per-request variants (auth scopes, language, feature
 `append(path)` concatenates `path` onto the current URL. **No separator is inserted**: pass a leading `/` yourself:
 
 ```ts
-const api = new OhNetBuilder({ url: "https://api.example.com" })
+const api = OhNetClient.create({ url: "https://api.example.com" })
 const v1 = api.append("/v1")
 const items = v1.append("/items") // produces: https://api.example.com/v1/items
 ```
@@ -75,7 +75,9 @@ const b = a.with(new OtherTimingMiddleware("timing")) // replaces "timing"
 const c = b.clean("timing") // back to no timing
 ```
 
-Introspect the registry with `builder.middleware.list()`.
+Introspect the registry with `client.middlewares().list()`.
+
+For full method signatures and the introspection API (`middlewares()` / `events()`), see the [Client reference](../reference/client.md).
 
 ## HTTP Verbs
 
@@ -115,9 +117,9 @@ See [HTTP Requests](./http.md) for details on `params`, `responseType`, and per-
 A typical chain reads top-to-bottom: base URL, then middlewares, then events, then verb:
 
 ```ts
-import { OHNET_EVENT, OhNetBuilder } from "@xtwis/ohnet"
+import { OHNET_EVENT, OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new AuthMiddleware(/* getToken, refresh, onToken */))
   .with(new UnpackMiddleware())
   .with(new TimingMiddleware())
@@ -126,7 +128,7 @@ const client = new OhNetBuilder({ url: BASE })
 await client.post("/login", { user, pass })
 ```
 
-Because every method returns a new builder, you can keep the original around for reuse, and `fork` it any time you need a one-off variant.
+Because every method returns a new client, you can keep the original around for reuse, and `fork` it any time you need a one-off variant.
 
 ## Next
 

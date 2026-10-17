@@ -22,7 +22,7 @@ client.head<T>(path, data)
 client.options<T>(path, data)
 ```
 
-The first argument is always a **path fragment** concatenated onto the builder's URL (no separator is inserted: pass a leading `/` yourself). `data` is the request body, forwarded to the adapter verbatim.
+The first argument is always a **path fragment** concatenated onto the client's URL (no separator is inserted: pass a leading `/` yourself). `data` is the request body, forwarded to the adapter verbatim.
 
 Verb helpers exist for symmetry and readability. The actual power sits in `request<T>(config)`:
 
@@ -87,13 +87,13 @@ client.get("/items", qs) // produces: ?z=1&a=2
 
 ## Per-Request Overrides
 
-Three fields matter most when overriding the builder defaults:
+Three fields matter most when overriding the client defaults:
 
-| Field               | Purpose                                                                   |
-| ------------------- | ------------------------------------------------------------------------- |
-| `timeout`           | Per-request deadline in ms; takes precedence over the builder's `timeout` |
-| `signal`            | External `AbortSignal`; aborting before completion yields `OHNET_ABORT`   |
-| `middlewareRetries` | Per-request retry cap; overrides the builder default                      |
+| Field               | Purpose                                                                  |
+| ------------------- | ------------------------------------------------------------------------ |
+| `timeout`           | Per-request deadline in ms; takes precedence over the client's `timeout` |
+| `signal`            | External `AbortSignal`; aborting before completion yields `OHNET_ABORT`  |
+| `middlewareRetries` | Per-request retry cap; overrides the client default                      |
 
 ```ts
 const controller = new AbortController()

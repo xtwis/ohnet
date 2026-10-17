@@ -5,7 +5,7 @@ order: 2
 
 # {{ $frontmatter.title }}
 
-中间件钩子围绕适配器运行; 生命周期事件观察管线. 两者都注册在 builder 上.
+中间件钩子围绕适配器运行; 生命周期事件观察管线. 两者都注册在客户端上.
 
 ## OhNetMiddleware
 
@@ -92,10 +92,10 @@ type OhNetEventName = (typeof OHNET_EVENT)[keyof typeof OHNET_EVENT]
 type OhNetEventHandler = (adapter: OhNetAdapter, context: OhNetContext) => void
 ```
 
-通过 `builder.on` 注册. 处理器按注册顺序运行. 当管线在传输层运行之前就被短路时, `adapter` 为 `null`. 处理器异常会被捕获并丢弃, 因此永不影响结果.
+通过 `client.on` 注册. 处理器按注册顺序运行. 当管线在传输层运行之前就被短路时, `adapter` 为 `null`. 处理器异常会被捕获并丢弃, 因此永不影响结果.
 
 ## 下一步
 
-- [Builder](./builder.md): 注册中间件与处理器的地方.
+- [客户端](./client.md): 注册中间件与处理器的地方.
 - [适配器与上下文](./transport.md): 钩子收到的 `context`.
 - [错误](./errors.md): 控制流产生的 code.

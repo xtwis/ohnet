@@ -71,5 +71,5 @@ catch (error) {
 
 ## 下一步
 
-- [HTTP Requests](./http.md): `responseType`, `params`, 以及每请求选项.
+- [HTTP 请求](./http.md): `responseType`, `params`, 以及每请求选项.
 - [构建业务 API 客户端](../example/business-client.md): 实用的错误映射模式.

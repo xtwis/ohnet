@@ -5,7 +5,7 @@ order: 5
 
 # {{ $frontmatter.title }}
 
-适配器是传输层边界: ohnet 把控制权移交给具体 HTTP 实现的唯一接触点. 其他所有部件 (builder, middleware, events) 都是传输无关的, 它们针对任何匹配该签名的函数工作.
+适配器是传输层边界: ohnet 把控制权移交给具体 HTTP 实现的唯一接触点. 其他所有部件 (客户端, 中间件, 事件) 都是传输无关的, 它们针对任何匹配该签名的函数工作.
 
 ## 契约
 
@@ -29,9 +29,9 @@ type OhNetAdapter = (context: OhNetContext) => Promise<OhNetResponse>
 要替换它:
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: myAdapter,
 })
@@ -58,7 +58,7 @@ import {
   OHNET_ADAPTER_ERROR_CODE,
   OHNET_ADAPTER_ERROR_MESSAGE,
   OhNetAdapterError,
-  OhNetBuilder,
+  OhNetClient,
   OhNetHeader,
 } from "@xtwis/ohnet"
 
@@ -116,7 +116,7 @@ const xhrAdapter: OhNetAdapter = (context) => {
   })
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   adapter: xhrAdapter,
 })

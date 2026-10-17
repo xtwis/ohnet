@@ -16,7 +16,7 @@ npm install @xtwis/ohnet
 ```
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 ```
 
 ## 如何阅读本参考
@@ -32,7 +32,7 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 
 | 符号                | 页面                                            |
 | ------------------- | ----------------------------------------------- |
-| `OhNetBuilder`      | [Builder](./builder.md#ohnetbuilder)            |
+| `OhNetClient`       | [Client](./client.md#ohnetclient)               |
 | `OhNetMiddleware`   | [中间件与事件](./middleware.md#ohnetmiddleware) |
 | `OhNetHeader`       | [Headers](./header.md#ohnetheader)              |
 | `OhNetController`   | [信号](./signal.md#ohnetcontroller)             |
@@ -64,7 +64,7 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 | `OhNetContext`, `OhNetRequest`, `OhNetResponse`                                                         | [适配器与上下文](./transport.md)                   |
 | `OhNetResponseLike`                                                                                     | [适配器与上下文](./transport.md#ohnetresponselike) |
 | `OhNetMethod`, `OhNetParams`, `OhNetResponseType`, `OhNetResponseKind`                                  | [适配器与上下文](./transport.md)                   |
-| `OhNetConfig`, `OhNetRequestConfig`                                                                     | [Builder](./builder.md#ohnetconfig)                |
+| `OhNetConfig`, `OhNetRequestConfig`                                                                     | [Client](./client.md#ohnetconfig)                  |
 | `OhNetMiddlewareEnterControls`, `OhNetMiddlewareLeaveControls`                                          | [中间件与事件](./middleware.md)                    |
 | `OhNetEventHandler`, `OhNetEventName`                                                                   | [中间件与事件](./middleware.md)                    |
 | `OhNetHeaderLike`, `OhNetHeaderRecord`, `OhNetHeaderEntry`, `OhNetHeaderEntries`, `OhNetHeaderIterable` | [Headers](./header.md)                             |
@@ -73,9 +73,9 @@ import { OhNetBuilder } from "@xtwis/ohnet"
 ## 快速示例
 
 ```ts
-import { OhNetBuilder } from "@xtwis/ohnet"
+import { OhNetClient } from "@xtwis/ohnet"
 
-const client = new OhNetBuilder({ url: "https://api.example.com" })
+const client = OhNetClient.create({ url: "https://api.example.com" })
 const user = await client.get<{ id: string, name: string }>("/users/1")
 ```
 
@@ -85,7 +85,7 @@ const user = await client.get<{ id: string, name: string }>("/users/1")
 
 ## 下一步
 
-- [Builder](./builder.md): 入口及其配置.
+- [客户端](./client.md): 入口及其配置.
 - [中间件与事件](./middleware.md): 钩子, 控制与生命周期事件.
 - [适配器与上下文](./transport.md): 传输契约与请求/响应类型.
 - [错误](./errors.md): 类与常量.

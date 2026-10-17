@@ -93,7 +93,7 @@ class BackoffRetryMiddleware extends OhNetMiddleware {
   }
 }
 
-const client = new OhNetBuilder({
+const client = OhNetClient.create({
   url: "https://api.example.com",
   middlewareRetries: 3,
 }).with(new BackoffRetryMiddleware())
@@ -253,7 +253,7 @@ class TokenMiddleware extends OhNetMiddleware {
 按你希望的 `enter` 顺序注册, 然后反向理解 `leave`:
 
 ```ts
-const client = new OhNetBuilder({ url: BASE })
+const client = OhNetClient.create({ url: BASE })
   .with(new RequestIdMiddleware()) // enter 最先, leave 最后
   .with(new TokenMiddleware(getToken))
   .with(new BackoffRetryMiddleware())
