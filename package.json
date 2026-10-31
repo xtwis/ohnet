@@ -1,6 +1,6 @@
 {
   "name": "@xtwis/ohnet",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "packageManager": "pnpm@11.24.0",
   "description": "Fluent, immutable HTTP client with middleware pipeline for building business-oriented request frameworks.",
   "author": "Twisuki",
@@ -9,7 +9,7 @@
     "access": "public"
   },
   "readme": "README.md",
-  "homepage": "https://x.twis.uk/en/ohnet/",
+  "homepage": "https://x.twis.uk/ohnet",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xtwis/ohnet.git"
